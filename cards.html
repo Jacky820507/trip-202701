@@ -5,154 +5,613 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>202701 日本東京遊｜行程表</title>
 <style>
-:root { --bg:#f6f4ef; --card:#fff; --ink:#1f2328; --sub:#5b6470; --line:#e3ded3; --accent:#c2410c; }
+:root { --bg:#f3f4f7; --card:#fff; --ink:#1d2433; --sub:#5f6b7d; --line:#e3e6ec; --accent:#e8622c; --blue:#1aa1f0; --ribbon:#f5761a; }
 @media (prefers-color-scheme: dark) {
-  :root { --bg:#14161a; --card:#1d2026; --ink:#eceff4; --sub:#a0a9b6; --line:#2e333b; --accent:#fb923c; }
+  :root { --bg:#12151b; --card:#1c2029; --ink:#eef1f6; --sub:#a3adbd; --line:#2c323d; --accent:#ff8a4c; --blue:#4bb8f7; }
 }
 * { box-sizing: border-box; }
-body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 "Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif; }
-.wrap { max-width:860px; margin:0 auto; padding:20px 16px 56px; }
-.top { display:flex; flex-wrap:wrap; align-items:baseline; gap:8px 14px; margin-bottom:6px; }
-h1 { font-size:1.5rem; margin:0; }
-.meta { color:var(--sub); font-size:.92rem; }
-.switch { margin-left:auto; color:var(--accent); text-decoration:none; font-weight:600; font-size:.95rem; }
-.card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 16px 6px; margin:14px 0; }
-.card header { display:flex; align-items:baseline; flex-wrap:wrap; gap:8px 12px; border-bottom:1px solid var(--line); padding-bottom:10px; }
-.badge { background:var(--day); color:#fff; border-radius:8px; padding:1px 10px; font-weight:700; font-size:.88rem; }
-.card h2 { font-size:1.12rem; margin:0; flex:1 1 220px; }
-.date { color:var(--sub); font-size:.9rem; }
+html, body { margin:0; }
+body { background:var(--bg); color:var(--ink); font:16px/1.6 "Noto Sans TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif; }
+a { color:inherit; }
+
+/* 頁首 */
+.top { position:sticky; top:0; z-index:20; background:var(--bg); border-bottom:1px solid var(--line); padding:12px 16px 0; }
+.top-row { display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 14px; max-width:1500px; margin:0 auto; }
+h1 { font-size:1.3rem; margin:0; }
+.meta { color:var(--sub); font-size:.88rem; }
+.switch { margin-left:auto; color:var(--accent); text-decoration:none; font-weight:700; font-size:.92rem; }
+.tabs { display:none; gap:6px; max-width:1500px; margin:10px auto 0; }
+.tabs button { flex:1; border:0; background:transparent; color:var(--sub); font:inherit; font-weight:700; padding:8px 0 10px; border-bottom:3px solid transparent; cursor:pointer; }
+.tabs button.on { color:var(--ink); border-bottom-color:var(--accent); }
+.top { padding-bottom:12px; }
+
+/* 版面：電腦兩欄（左行程、右卡片牆，各自捲動） */
+.layout { display:grid; grid-template-columns:minmax(380px, 560px) 1fr; gap:24px; max-width:1500px; margin:0 auto; padding:16px; }
+.col { min-width:0; }
+.col-wall { position:sticky; top:var(--top-h, 64px); height:calc(100vh - var(--top-h, 64px) - 16px); overflow-y:auto; padding-right:4px; scrollbar-width:thin; }
+.no-wall .layout { grid-template-columns:minmax(0, 860px); justify-content:center; }
+
+/* 左：每日行程 */
+.card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px 4px; margin:0 0 14px; scroll-margin-top:calc(var(--top-h, 64px) + 12px); }
+.card header { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; border-bottom:1px solid var(--line); padding-bottom:9px; }
+.badge { background:var(--day); color:#fff; border-radius:8px; padding:1px 10px; font-weight:700; font-size:.84rem; }
+.card h2 { font-size:1.04rem; margin:0; flex:1 1 200px; }
+.date { color:var(--sub); font-size:.86rem; }
 ul { list-style:none; margin:0; padding:0; }
-li { display:grid; grid-template-columns:58px 1fr; gap:10px; padding:9px 0; border-top:1px dashed var(--line); }
+li { display:grid; grid-template-columns:52px 1fr; gap:10px; padding:8px 0; border-top:1px dashed var(--line); scroll-margin-top:calc(var(--top-h, 64px) + 12px); }
 li:first-child { border-top:0; }
-.t { color:var(--accent); font-weight:700; font-variant-numeric:tabular-nums; font-size:.95rem; }
-.it { font-weight:500; }
-.note { color:var(--sub); font-size:.86rem; margin-top:2px; }
-.gm { font-size:.8rem; color:var(--accent); text-decoration:none; white-space:nowrap; margin-left:4px; }
-.foot { color:var(--sub); font-size:.8rem; margin-top:20px; }
-@media (max-width:520px) { li { grid-template-columns:48px 1fr; } }
-@media print { body { background:#fff; } .card { break-inside:avoid; } .switch { display:none; } }
+li.flash { animation:flash 1.6s ease; border-radius:8px; }
+@keyframes flash { 0%,40% { background:color-mix(in srgb, var(--accent) 18%, transparent); } 100% { background:transparent; } }
+.t { color:var(--accent); font-weight:700; font-variant-numeric:tabular-nums; font-size:.92rem; }
+.it { font-weight:500; font-size:.96rem; }
+.note { color:var(--sub); font-size:.83rem; margin-top:2px; }
+.gm { font-size:.78rem; color:var(--accent); text-decoration:none; white-space:nowrap; margin-left:4px; }
+
+/* 右：卡片牆 */
+.wall-head { display:flex; align-items:center; flex-wrap:wrap; gap:8px 12px; margin:0 0 12px; }
+.wall-head h2 { margin:0; font-size:1.15rem; }
+.chips { display:flex; gap:6px; flex-wrap:wrap; }
+.chips button { border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:999px; padding:3px 12px; font:inherit; font-size:.84rem; cursor:pointer; }
+.chips button.on { background:var(--ink); color:var(--bg); border-color:var(--ink); }
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); grid-auto-flow:dense; gap:14px; }
+.hc { position:relative; border-radius:16px; overflow:hidden; box-shadow:0 2px 10px rgba(20,30,50,.08); }
+.hc.hide { display:none; }
+.hc h3 { margin:0; line-height:1.25; }
+.ribbon { position:absolute; top:12px; left:0; z-index:2; background:var(--ribbon); color:#fff; font-size:.78rem; font-weight:700; padding:2px 10px 2px 12px; border-radius:0 6px 6px 0; }
+
+/* 照片卡 */
+.photo { min-height:260px; color:#fff; background:linear-gradient(135deg, #3b5b8c, #c85a3a); display:flex; }
+.photo.big { grid-column:span 2; min-height:300px; }
+.photo img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.photo .shade { position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,0) 30%, rgba(0,0,0,.72) 100%); }
+.pc-body { position:relative; z-index:1; margin-top:auto; padding:16px; width:100%; }
+.pc-cat { font-size:.75rem; opacity:.9; letter-spacing:.04em; }
+.photo h3 { font-size:1.45rem; font-weight:800; text-shadow:0 1px 6px rgba(0,0,0,.35); margin:2px 0 4px; }
+.photo.big h3 { font-size:1.9rem; }
+.photo p { margin:0; font-size:.85rem; opacity:.92; }
+.pc-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:10px; }
+.photo .when { color:#fff; font-size:.8rem; text-decoration:none; background:rgba(255,255,255,.18); border-radius:8px; padding:2px 8px; backdrop-filter:blur(4px); }
+.photo .pill { color:#fff; border:1.5px solid #fff; border-radius:999px; padding:3px 12px; font-size:.82rem; font-weight:700; text-decoration:none; white-space:nowrap; }
+.credit { position:absolute; top:8px; right:10px; z-index:2; color:#fff; opacity:.7; text-decoration:none; font-size:.85rem; }
+
+/* 白卡 */
+.plain { background:var(--card); border:1px solid var(--line); padding:16px; display:flex; flex-direction:column; gap:4px; min-height:150px; }
+.plain .ribbon { top:14px; left:auto; right:0; border-radius:6px 0 0 6px; padding:2px 12px 2px 10px; }
+.pl-top { display:flex; align-items:center; gap:8px; }
+.ico { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:color-mix(in srgb, var(--accent) 14%, transparent); font-size:1.1rem; }
+.pl-cat { color:var(--sub); font-size:.78rem; }
+.plain h3 { font-size:1.1rem; font-weight:800; margin-top:6px; }
+.plain p { margin:0; color:var(--sub); font-size:.84rem; }
+.pl-foot { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:auto; padding-top:10px; }
+.plain .when { color:var(--accent); font-weight:700; font-size:.82rem; text-decoration:none; }
+.plain .pill { color:var(--blue); border:1.5px solid var(--blue); border-radius:999px; padding:3px 12px; font-size:.8rem; font-weight:700; text-decoration:none; white-space:nowrap; }
+.foot { color:var(--sub); font-size:.78rem; margin:18px 0 6px; }
+
+/* 平板與手機：分頁切換，一次只顯示一欄 */
+@media (max-width: 1000px) {
+  .tabs { display:flex; }
+  .top { padding-bottom:0; }
+  .layout { grid-template-columns:1fr; padding:12px; }
+  .col-wall { position:static; height:auto; overflow:visible; padding:0; }
+  body[data-tab="days"] .col-wall, body[data-tab="wall"] .col-days { display:none; }
+  .no-wall .tabs { display:none; }
+}
+@media (max-width: 560px) {
+  h1 { font-size:1.12rem; }
+  .grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .photo { min-height:200px; }
+  .photo.big { min-height:230px; }
+  .photo h3 { font-size:1.15rem; }
+  .photo.big h3 { font-size:1.45rem; }
+  .photo p, .plain p { display:none; }
+  .pc-body { padding:12px; }
+  .pc-foot { flex-direction:column; align-items:flex-start; gap:6px; }
+  .plain { padding:12px; min-height:130px; }
+  .plain h3 { font-size:.98rem; }
+  .pl-foot { flex-direction:column; align-items:flex-start; gap:6px; }
+  li { grid-template-columns:46px 1fr; }
+}
+@media print { .top, .col-wall { display:none; } .card { break-inside:avoid; } }
 </style>
 </head>
-<body>
-<div class="wrap">
-  <div class="top"><h1>🧳 202701 日本東京遊</h1><span class="meta">2027-01-13(三) – 2027-01-19(二)　🏨 上野之家</span><a class="switch" href="./">🗺 看地圖版</a></div>
-  <section class="card" style="--day:#8a919c">
-  <header><span class="badge">待辦</span><h2>出發前待辦</h2><span class="date"></span></header>
-  <ul><li><span class="t">☐</span><div><div class="it">《我的英雄學院》10 週年展 OUR HERO 1/18 的票</div><div class="note">你已安排好；確認入場時段與票券（電子或紙本）。一般 ¥2,500</div></div></li>
-<li><span class="t">☐</span><div><div class="it">訂位：1/14（四）重慶飯店 本館 18:45</div><div class="note">045-641-8288 或一休；週四最後點餐 20:00</div></div></li>
-<li><span class="t">☐</span><div><div class="it">訂位：1/15（五）しゃぶ輝 新橋店 18:45</div><div class="note">網路訂位或 03-6206-7202；平日晚餐時間順便確認；告訴店家 19:40 要離開</div></div></li>
-<li><span class="t">☐</span><div><div class="it">訂位：1/18（一）焼肉屋さかい 新宿歌舞伎町店 18:00</div><div class="note">網路即時訂位；週一 17:00–23:00；19:15 前要吃完</div></div></li>
-<li><span class="t">☐</span><div><div class="it">預約：1/15（五）ROKUSAN ANGEL 20:30 場</div><div class="note">官網 rokusanangel.jp 或 03-6447-2037；確認週五演出、年齡限制、服裝規定、票價</div></div></li>
-<li><span class="t">☐</span><div><div class="it">買票：1/16（六）晴空塔天望甲板 16:30 時段</div><div class="note">週六人多、票價較高，建議先在官網 WEB 或 7ticket 買（現場買每張多 ¥500 發券費）</div></div></li>
-<li><span class="t">☐</span><div><div class="it">買票：1/18（一）東京鐵塔 Main Deck</div><div class="note">asoview 先買（WEB ¥1,500，現場同價），不買也可以</div></div></li>
-<li><span class="t">☐</span><div><div class="it">交通：1/17（日）特急富士回遊 7 號（新宿 08:30）／44 號（河口湖 16:48）指定席</div><div class="note">えきねっと預約；新宿–河口湖 ¥4,200；回程假日時刻請確認</div></div></li>
-<li><span class="t">☐</span><div><div class="it">交通：Skyliner 來回</div><div class="note">去程約 18:30 班、回程 1/19 12:20 班；確認是否已買來回票</div></div></li>
-<li><span class="t">☐</span><div><div class="it">Visit Japan Web 填好入境資料</div><div class="note">成田入境與海關用 QR Code</div></div></li>
-<li><span class="t">☐</span><div><div class="it">住宿：在 app 把 🏨 拖到上野之家的實際位置</div><div class="note">目前暫放上野站；並確認 1/19 退房後可以寄放行李</div></div></li>
-<li><span class="t">☐</span><div><div class="it">退稅新制：帶護照、收據收好</div><div class="note">2026/11/1 起改為出境時在機場退稅</div></div></li>
-<li><span class="t">☐</span><div><div class="it">出發前一週再查：峰本公休、唐吉訶德上野店位置、富士回遊 1 月假日時刻、河口湖周遊巴士冬季班次、しゃぶ輝平日時間</div><div class="note">這些目前還沒查到官方資料</div></div></li></ul>
-</section>
-<section class="card" style="--day:#e5735e">
-  <header><span class="badge">Day 1</span><h2>抵達・山城屋＋阿美橫丁</h2><span class="date">2027-01-13(三)</span></header>
-  <ul><li><span class="t">12:50</span><div><div class="it">CX450 桃園 → 成田</div><div class="note">國泰航空，16:50 抵達</div></div></li>
-<li><span class="t">16:50</span><div><div class="it">抵達成田機場 <a class="gm" href="https://www.google.com/maps/search/%E6%88%90%E7%94%B0%E7%A9%BA%E6%B8%AF%20%E7%AC%AC2%E6%97%85%E5%AE%A2%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB/@35.7731188,140.3864371,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">Visit Japan Web QR Code 先填好；入境＋領行李約 60–75 分。國泰在成田一般是第 2 航廈，以登機證為準</div></div></li>
-<li><span class="t">18:30</span><div><div class="it">Skyliner → 京成上野（約 45 分） <a class="gm" href="https://www.google.com/maps/search/%E4%BA%AC%E6%88%90%E4%B8%8A%E9%87%8E%E9%A7%85/@35.7113782,139.7741559,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">入境＋領行李約 60–75 分，搭 18:20–18:30 左右的班次比較實際，約 19:15 到京成上野</div></div></li>
-<li><span class="t">19:30</span><div><div class="it">上野之家 Check-in 放行李 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">19:45</span><div><div class="it">晚餐：もつ焼 大統領 本店（阿美橫丁） <a class="gm" href="https://www.google.com/maps/search/%E3%82%82%E3%81%A4%E7%84%BC%20%E5%A4%A7%E7%B5%B1%E9%A0%98%20%E6%9C%AC%E5%BA%97%20%E4%B8%8A%E9%87%8E/@35.7103983,139.7753321,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">昭和 25 年創業的立飲居酒屋，招牌馬もつ煮込み，約 ¥3,000；10:00–24:00 無休。可否訂位未查證。備案：肉の大山（上野 6-13-2）。晚餐先吃（立飲，吃得快），玩具店放後面，山城屋營業到 21:30 剛好</div></div></li>
-<li><span class="t">20:45</span><div><div class="it">上野玩具店：山城屋 <a class="gm" href="https://www.google.com/maps/search/%E3%83%A4%E3%83%9E%E3%82%B7%E3%83%AD%E3%83%A4%20%E4%B8%8A%E9%87%8E/@35.7113306,139.7753313,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">營業到 21:30（你提供的資訊）</div></div></li></ul>
-</section>
-<section class="card" style="--day:#4a90d9">
-  <header><span class="badge">Day 2</span><h2>鎌倉＋江之島＋橫濱中華街</h2><span class="date">2027-01-14(四)</span></header>
-  <ul><li><span class="t">07:45</span><div><div class="it">早餐：親父の製麺所（上野站改札內） <a class="gm" href="https://www.google.com/maps/search/%E8%A6%AA%E7%88%B6%E3%81%AE%E8%A3%BD%E9%BA%BA%E6%89%80%20%E4%B8%8A%E9%87%8E/@35.7129442,139.7761208,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">平日 7:00 起，站內烏龍麵／蕎麥麵，吃完直接上車。備案：ラ ココリコ 上野本店（上野站淺草口，7:00 起）</div></div></li>
-<li><span class="t">08:30</span><div><div class="it">上野 → 東京 → 橫須賀線到鎌倉（約 1 小時 15 分） <a class="gm" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%E9%A7%85/@35.319003,139.5506805,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">鎌倉站買江之電一日券（約 ¥800，以現場為準）</div></div></li>
-<li><span class="t">10:00</span><div><div class="it">小町通散步 <a class="gm" href="https://www.google.com/maps/search/%E5%B0%8F%E7%94%BA%E9%80%9A%E3%82%8A%20%E9%8E%8C%E5%80%89/@35.3207763,139.5519605,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">10:45</span><div><div class="it">鶴岡八幡宮 <a class="gm" href="https://www.google.com/maps/search/%E9%B6%B4%E5%B2%A1%E5%85%AB%E5%B9%A1%E5%AE%AE/@35.3251836,139.5561787,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">12:00</span><div><div class="it">午餐：鎌倉 峰本 小町通り店 <a class="gm" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%20%E5%B3%B0%E6%9C%AC%20%E5%B0%8F%E7%94%BA%E9%80%9A%E3%82%8A%E5%BA%97/@35.3199739,139.5516525,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">釜揚げしらす丼＋一口蕎麥套餐；11:00–21:30，定休日未查證。1 月沒有生しらす（禁漁），只有釜揚げ。注意：秋本週四公休，別當備案。備案：鎌倉釜飯 かまかま本店（11:00–16:00、週三休，週四有開；只看到搜尋摘要，未逐頁核對）</div></div></li>
-<li><span class="t">13:15</span><div><div class="it">高德院（鎌倉大佛） <a class="gm" href="https://www.google.com/maps/search/%E9%AB%98%E5%BE%B3%E9%99%A2%20%E9%8E%8C%E5%80%89%E5%A4%A7%E4%BB%8F/@35.3164986,139.5357293,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">江之電到長谷</div></div></li>
-<li><span class="t">13:50</span><div><div class="it">長谷寺 <a class="gm" href="https://www.google.com/maps/search/%E9%95%B7%E8%B0%B7%E5%AF%BA%20%E9%8E%8C%E5%80%89/@35.3122687,139.5333092,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">14:45</span><div><div class="it">鎌倉高校前平交道（灌籃高手） <a class="gm" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%E9%AB%98%E6%A0%A1%E5%89%8D%E9%A7%85/@35.3067209,139.5007098,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">拍照約 15 分</div></div></li>
-<li><span class="t">15:30</span><div><div class="it">江之島：江島神社 <a class="gm" href="https://www.google.com/maps/search/%E6%B1%9F%E5%B3%B6%E7%A5%9E%E7%A4%BE/@35.3003396,139.4798445,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">16:30</span><div><div class="it">江之島展望燈塔（Sea Candle）看日落 <a class="gm" href="https://www.google.com/maps/search/%E6%B1%9F%E3%81%AE%E5%B3%B6%E3%82%B7%E3%83%BC%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%89%E3%83%AB/@35.2997557,139.4784787,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">日落約 16:50，晴天看富士山；夜間燈飾場次待確認</div></div></li>
-<li><span class="t">17:15</span><div><div class="it">江之電到藤澤 → JR 東海道線到橫濱（約 50 分）</div><div class="note">展望燈塔走到江之島站約 20 分＋江之電約 25 分＋JR 約 25 分＋走到中華街，實際約 90 分；重慶飯店週四最後點餐 20:00，所以日落看完就走</div></div></li>
-<li><span class="t">18:45</span><div><div class="it">晚餐：重慶飯店 本館（橫濱中華街） <a class="gm" href="https://www.google.com/maps/search/%E9%87%8D%E6%85%B6%E9%A3%AF%E5%BA%97%20%E6%9C%AC%E9%A4%A8%20%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97/@35.4428,139.6487,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">四川菜老店；週一～四 17:00–21:00（最後點餐 20:00）。一定要先訂位：電話 045-641-8288 或一休。來不及就改山東 2 号店（水餃，11:00–23:00，只收現金）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
-<li><span class="t">20:30</span><div><div class="it">回上野（約 40 分）</div></div></li></ul>
-</section>
-<section class="card" style="--day:#c678dd">
-  <header><span class="badge">Day 3</span><h2>日枝神社＋皇居＋銀座＋數碼寶貝台場巡禮＋涮涮鍋＋ROKUSAN ANGEL</h2><span class="date">2027-01-15(五)</span></header>
-  <ul><li><span class="t">08:00</span><div><div class="it">早餐：珈琲 王城（上野） <a class="gm" href="https://www.google.com/maps/search/%E7%8F%88%E7%90%B2%20%E7%8E%8B%E5%9F%8E%20%E4%B8%8A%E9%87%8E/@35.7100304,139.7758299,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">8:00–19:00，不定休；昭和喫茶店。備案：喫茶ギャラン（8:00 起，無休）</div></div></li>
-<li><span class="t">08:45</span><div><div class="it">上野 → 溜池山王（銀座線，約 20–25 分）</div></div></li>
-<li><span class="t">09:15</span><div><div class="it">日枝神社 <a class="gm" href="https://www.google.com/maps/search/%E6%97%A5%E6%9E%9D%E7%A5%9E%E7%A4%BE%20%E8%B5%A4%E5%9D%82/@35.674685,139.7398822,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">溜池山王站步行 3–5 分；開門約 6:00–17:00、免費；稻荷參道朱紅鳥居是拍照名所</div></div></li>
-<li><span class="t">10:45</span><div><div class="it">皇居外苑、二重橋 <a class="gm" href="https://www.google.com/maps/search/%E7%9A%87%E5%B1%85%E5%A4%96%E8%8B%91%20%E4%BA%8C%E9%87%8D%E6%A9%8B/@35.6802215,139.7535986,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">千代田線到二重橋前約 10 分。今天週五：皇居東御苑週一、週五休園，只逛外苑與二重橋</div></div></li>
-<li><span class="t">12:15</span><div><div class="it">蛋包飯（必吃）：煉瓦亭 <a class="gm" href="https://www.google.com/maps/search/%E7%85%89%E7%93%A6%E4%BA%AD%20%E9%8A%80%E5%BA%A7/@35.6723,139.7671,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">蛋包飯發源店；11:15–15:00（最後點餐 14:00），週日休、週六有開，不接受訂位。備案：資生堂パーラー銀座本店（可預約 03-5537-6241，週一休）。原備案レストラン早川週六日公休，已換掉（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
-<li><span class="t">13:15</span><div><div class="it">銀座逛衣服 <a class="gm" href="https://www.google.com/maps/search/UNIQLO%20TOKYO%20%E9%8A%80%E5%BA%A7/@35.6737723,139.7651378,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">只有約 45 分，挑 1–2 間就好：UNIQLO 銀座（12 層旗艦）或無印良品銀座旗艦；Ginza Six、松屋銀座留待有空。1 月多半是冬季特賣（一般經驗）</div></div></li>
-<li><span class="t">14:00</span><div><div class="it">數碼寶貝巡禮①：銀座 → 新橋 → 海鷗線到東京ビッグサイト站</div><div class="note">走到新橋＋海鷗線，實際約 35–40 分</div></div></li>
-<li><span class="t">14:40</span><div><div class="it">數碼寶貝巡禮②：東京ビッグサイト（倒金字塔） <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%83%93%E3%83%83%E3%82%B0%E3%82%B5%E3%82%A4%E3%83%88/@35.6297628,139.7939817,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">第 37–38 話，被迷昏的大人被集中關在這裡（劇中寫作「東京ビックファイト」）；站前廣場仰拍外觀</div></div></li>
-<li><span class="t">15:20</span><div><div class="it">數碼寶貝巡禮③：富士電視台球體展望室「はちたま」 <a class="gm" href="https://www.google.com/maps/search/%E3%83%95%E3%82%B8%E3%83%86%E3%83%AC%E3%83%93%20%E7%90%83%E4%BD%93%E5%B1%95%E6%9C%9B%E5%AE%A4%20%E3%81%AF%E3%81%A1%E3%81%9F%E3%81%BE/@35.6271848,139.7751659,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">海鷗線到台場站約 6–8 分。第 36 話霧結界的源頭就是電視台；第 37 話天女獸在這裡進化。10:00–18:00（17:30 停止入場），週一休，¥800</div></div></li>
-<li><span class="t">16:30</span><div><div class="it">數碼寶貝巡禮④：台場海濱公園＋彩虹大橋日落 <a class="gm" href="https://www.google.com/maps/search/%E3%81%8A%E5%8F%B0%E5%A0%B4%E6%B5%B7%E6%B5%9C%E5%85%AC%E5%9C%92/@35.6299058,139.7788045,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">第 36 話：阿武在彩虹橋被海龍獸攻擊，獨角獸進化成祖頓獸。以彩虹大橋為背景拍日落</div></div></li>
-<li><span class="t">17:15</span><div><div class="it">DiverCity：獨角獸鋼彈、5F 動漫二手店 <a class="gm" href="https://www.google.com/maps/search/%E3%83%80%E3%82%A4%E3%83%90%E3%83%BC%E3%82%B7%E3%83%86%E3%82%A3%E6%9D%B1%E4%BA%AC%20%E3%83%97%E3%83%A9%E3%82%B6/@35.6250476,139.7755368,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">17:55</span><div><div class="it">數碼寶貝巡禮⑤：回富士電視台正面，18:06 拍「復活時刻」 <a class="gm" href="https://www.google.com/maps/search/%E3%83%95%E3%82%B8%E3%83%86%E3%83%AC%E3%83%93%E6%9C%AC%E7%A4%BE%E3%83%93%E3%83%AB/@35.6271848,139.7751659,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">第 38 話把野獸數字解成 18:06，魔王吸血魔獸在這一刻復活；從對面廣場仰拍球體夜景</div></div></li>
-<li><span class="t">18:15</span><div><div class="it">海鷗線回新橋（約 15 分）</div></div></li>
-<li><span class="t">18:45</span><div><div class="it">晚餐：しゃぶ輝 新橋店（涮涮鍋／壽喜燒） <a class="gm" href="https://www.google.com/maps/search/%E3%81%97%E3%82%83%E3%81%B6%E8%BC%9D%20%E6%96%B0%E6%A9%8B%E5%BA%97/@35.6668,139.7572,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">19:40 前吃完趕 ROKUSAN ANGEL（新橋→六本木約 15 分）。新橋站步行 4 分，完全個室；平日晚餐時間新橋店沒查到（同集團銀座本店平日 17:00–22:30），訂位時確認，電話 03-6206-7202，可網路訂位。這趟的「火鍋」就是這一餐（仙台取消後唯一的火鍋）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）。備案：すきはな 新橋銀座口店（壽喜燒，11:00–23:00 L.O.）</div></div></li>
-<li><span class="t">20:00</span><div><div class="it">ROKUSAN ANGEL（63 ANGEL）20:30 場 <a class="gm" href="https://www.google.com/maps/search/ROKUSAN%20ANGEL%20%E5%85%AD%E6%9C%AC%E6%9C%A8/@35.6638,139.7335,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">六本木 3-8-15 B2F，需預約；百科站與網友遊記都寫每天三場 18:30／20:30／22:40 開演（入場早 30 分），週五有沒有演出、年齡、服裝、票價請預約時確認，預約時在官網 rokusanangel.jp 或電話 03-6447-2037 確認；年齡、服裝、票價未查到（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
-<li><span class="t">22:45</span><div><div class="it">日比谷線六本木 → 上野（約 23:15 回飯店）</div><div class="note">隔天 1/16 是輕鬆日，早餐 09:00 才開始</div></div></li></ul>
-</section>
-<section class="card" style="--day:#50a14f">
-  <header><span class="badge">Day 4</span><h2>秋葉原＋神田明神＋湯島天神＋晴空塔（輕鬆日）</h2><span class="date">2027-01-16(六)</span></header>
-  <ul><li><span class="t">09:00</span><div><div class="it">早餐：ラ ココリコ 上野本店 <a class="gm" href="https://www.google.com/maps/search/%E3%83%A9%20%E3%82%B3%E3%82%B3%E3%83%AA%E3%82%B3%20%E4%B8%8A%E9%87%8E%E6%9C%AC%E5%BA%97/@35.7132,139.7785,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野站淺草口步行 1 分，飯店一樓早餐 7:00–10:30 無休；價位未查證（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）。備案：親父の製麺所（上野站改札內，7:00 起）</div></div></li>
-<li><span class="t">10:30</span><div><div class="it">秋葉原：Radio Kaikan、Animate、駿河屋、Super Potato <a class="gm" href="https://www.google.com/maps/search/%E7%A7%8B%E8%91%89%E5%8E%9F%E3%83%A9%E3%82%B8%E3%82%AA%E4%BC%9A%E9%A4%A8/@35.6981145,139.7719922,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野搭 JR 一站；多數店 10–11 點才開</div></div></li>
-<li><span class="t">12:30</span><div><div class="it">天丼（必吃）：天ぷら ひさご 秋葉原店 <a class="gm" href="https://www.google.com/maps/search/%E5%A4%A9%E3%81%B7%E3%82%89%20%E3%81%B2%E3%81%95%E3%81%94%20%E7%A7%8B%E8%91%89%E5%8E%9F%E5%BA%97%20AKIBA_ICHI/@35.7005826,139.7724727,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">AKIBA_ICHI（秋葉原 UDX）3F，電氣街口步行 3 分；午餐 11:00–15:00（各站一致），天丼約 ¥1,500、大海老丼 ¥2,700。公休：一休寫「不定休（依秋葉原 UDX）」，另一站寫無休，週五應有開，想保險可打 03-3252-3051。備案：八ツ手屋（神田，平日 11:00–14:00，可能賣完）</div></div></li>
-<li><span class="t">13:30</span><div><div class="it">神田明神 <a class="gm" href="https://www.google.com/maps/search/%E7%A5%9E%E7%94%B0%E6%98%8E%E7%A5%9E/@35.7019403,139.7677388,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">秋葉原步行約 7 分；境內 24 小時開放，授與所 9:00–18:00。秋葉原的守護神社，也是《Love Live!》聖地；1 月還在新年參拜季。取代去過的淺草寺</div></div></li>
-<li><span class="t">14:15</span><div><div class="it">湯島天神（湯島天滿宮） <a class="gm" href="https://www.google.com/maps/search/%E6%B9%AF%E5%B3%B6%E5%A4%A9%E6%BA%80%E5%AE%AE/@35.7076902,139.7680519,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">步行約 10 分；6:00–19:30。學業祈福名所，1 月正值考季，繪馬很壯觀</div></div></li>
-<li><span class="t">15:00</span><div><div class="it">湯島 → 押上（千代田線轉半藏門線，約 20 分）</div></div></li>
-<li><span class="t">15:30</span><div><div class="it">逛晴空街道 Solamachi <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81/@35.7102358,139.8119453,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">4F 有 JUMP、三麗鷗、寶可夢中心</div></div></li>
-<li><span class="t">16:30</span><div><div class="it">晴空塔天望甲板（350m）日落＋夜景 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%84%E3%83%AA%E3%83%BC/@35.7100543,139.8107141,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">日落約 16:55。大人 ¥1,800 起、依日期浮動，官網 WEB 或 7ticket 先買；現場 4F 窗口／售票機每張多收 ¥500 發券費。最終入場為閉館前 1 小時；1/16 實際營業時間官網日曆未查到（第三方：10:00–22:00）。今天週六人多、票價依日期浮動，週末通常較貴，建議先買指定時段</div></div></li>
-<li><span class="t">18:30</span><div><div class="it">晚餐：月島もんじゃ だるま ソラマチ店 <a class="gm" href="https://www.google.com/maps/search/%E6%9C%88%E5%B3%B6%E3%82%82%E3%82%93%E3%81%98%E3%82%83%20%E3%81%A0%E3%82%8B%E3%81%BE%20%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81%E5%BA%97/@35.71,139.8113,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">東京名物文字燒；10:30–23:00（最後點餐 21:45），可電話訂位 03-5809-7408（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）。備案：Solamachi 6–7F 其他餐廳現場挑（たまひで いちの 營業狀態資料矛盾，未列入）</div></div></li>
-<li><span class="t">19:45</span><div><div class="it">把 Solamachi 逛完 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81/@35.7102358,139.8119453,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">全館約到 21:00（待確認）</div></div></li>
-<li><span class="t">21:00</span><div><div class="it">東武線到淺草 → 銀座線回上野（約 15–20 分）</div><div class="note">隔天富士山 07:45 出門，不用太早睡</div></div></li></ul>
-</section>
-<section class="card" style="--day:#986801">
-  <header><span class="badge">Day 5</span><h2>富士山・河口湖（不早起版）</h2><span class="date">2027-01-17(日)</span></header>
-  <ul><li><span class="t">07:45</span><div><div class="it">慢慢出門：上野 → 新宿（JR 山手線約 25 分）</div><div class="note">不用早起。出門前看即時影像確認看不看得到富士山：live.fujigoko.tv</div></div></li>
-<li><span class="t">08:15</span><div><div class="it">新宿站買早餐（便當／飯糰），帶上車吃 <a class="gm" href="https://www.google.com/maps/search/%E6%96%B0%E5%AE%BF%E9%A7%85/@35.6896,139.7006,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">08:30</span><div><div class="it">新宿搭特急「富士回遊 7 號」→ 下吉田（約 1 小時 40 分）</div><div class="note">全車指定席，えきねっと預約；新宿 08:30 → 河口湖 10:26（2026/10 時刻，1/17 週日請再確認），在車上吃早餐、補眠</div></div></li>
-<li><span class="t">10:10</span><div><div class="it">下吉田站下車 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8B%E5%90%89%E7%94%B0%E9%A7%85/@35.4977295,138.8035253,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">依河口湖 10:26 到站倒推，約 10:10（未查證）</div></div></li>
-<li><span class="t">10:20</span><div><div class="it">新倉山淺間公園・忠靈塔（五重塔＋富士山） <a class="gm" href="https://www.google.com/maps/search/%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94/@35.5012871,138.8013556,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">下吉田站步行約 20–25 分，398 段階梯可走旁邊的坡道，慢慢走不用趕；穿防滑鞋。冬天晴天中午前都還有機會看到富士山</div></div></li>
-<li><span class="t">11:40</span><div><div class="it">富士急線 下吉田 → 河口湖（約 15 分） <a class="gm" href="https://www.google.com/maps/search/%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85/@35.4983534,138.7684924,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">12:15</span><div><div class="it">午餐：甲州ほうとう 小作 河口湖店（餺飥） <a class="gm" href="https://www.google.com/maps/search/%E7%94%B2%E5%B7%9E%E3%81%BB%E3%81%86%E3%81%A8%E3%81%86%20%E5%B0%8F%E4%BD%9C%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E5%BA%97/@35.4957831,138.7568346,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">官網查證：11:00–20:00（L.O. 19:30），定休日なし，2027/1 只有 1/1 休。備案：ほうとう不動 東戀路店（週一有沒有開未查證，0555-72-8511）；距河口湖站約 1.1km（依地圖估，步行約 15 分）</div></div></li>
-<li><span class="t">13:45</span><div><div class="it">大石公園（湖畔看富士山） <a class="gm" href="https://www.google.com/maps/search/%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92/@35.52329,138.7465374,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">周遊巴士紅線約 20–30 分（未查證，一日券 ¥1,500）。河口湖畔正面看富士山，可在河口湖自然生活館坐著喝東西休息。想多一個點才去富士山全景纜車（來回 ¥1,200，強風停駛），累了就跳過</div></div></li>
-<li><span class="t">15:45</span><div><div class="it">回到河口湖站 <a class="gm" href="https://www.google.com/maps/search/%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85/@35.4983534,138.7684924,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">搭紅線巴士回車站，提早到可在站前買伴手禮</div></div></li>
-<li><span class="t">16:48</span><div><div class="it">搭富士回遊 44 號 → 新宿 18:48 → 山手線回上野（約 19:20）</div><div class="note">44 號「平日」新宿 18:48 到，1/17 是週日，假日時刻未查證，訂票時確認；晚一點可搭 48 號 17:41 發。週日纜車、忠靈塔人潮較多</div></div></li>
-<li><span class="t">19:30</span><div><div class="it">晚餐：上野 肉の大山（炸肉餅、燒肉定食） <a class="gm" href="https://www.google.com/maps/search/%E8%82%89%E3%81%AE%E5%A4%A7%E5%B1%B1%20%E4%B8%8A%E9%87%8E/@35.7087,139.7748,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野 6-13-2；營業到 22:00 或 23:00（各站不一）。備案：もつ焼 大統領（10:00–24:00 無休）。今晚回上野後若還有體力，可順逛唐吉訶德／多慶屋買零食藥妝（營業時間未查證）</div></div></li></ul>
-</section>
-<section class="card" style="--day:#d19a66">
-  <header><span class="badge">Day 6</span><h2>我的英雄學院 10 週年展＋中野拉麵＋Harbs＋原宿＋歌舞伎町燒肉＋東京鐵塔夜景</h2><span class="date">2027-01-18(一)</span></header>
-  <ul><li><span class="t">08:30</span><div><div class="it">朝食：老舗喫茶ギャラン <a class="gm" href="https://www.google.com/maps/search/%E5%96%AB%E8%8C%B6%20%E3%82%AE%E3%83%A3%E3%83%A9%E3%83%B3%20%E4%B8%8A%E9%87%8E/@35.7111901,139.775252,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野站步行 2–3 分；8:00–22:30 無休，昭和復古喫茶。備案：珈琲 王城（8:00–19:00，不定休）</div></div></li>
-<li><span class="t">09:30</span><div><div class="it">上野 → 東京站八重洲口（JR 約 6 分）</div></div></li>
-<li><span class="t">10:00</span><div><div class="it">《我的英雄學院》TV 動畫 10 週年記念展 OUR HERO <a class="gm" href="https://www.google.com/maps/search/TOFROM%20YAESU%20TOWER%20%E6%9D%B1%E4%BA%AC%E5%BB%BA%E7%89%A9%20%E3%81%B4%E3%81%82%20%E3%82%AB%E3%83%B3%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/@35.680858,139.7705856,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">東京建物 ぴあ カンファレンス（TOFROM YAESU TOWER 6F，東京站八重洲口旁）；2027/1/8–2/7 無休，10:00–20:00（最終入場 19:00）。一般 ¥2,500。你已安排好，入場時間以你的票為準（官網查證）</div></div></li>
-<li><span class="t">12:15</span><div><div class="it">東京站 → 中央線快速直達中野（約 20 分）</div></div></li>
-<li><span class="t">12:45</span><div><div class="it">拉麵（必吃，有湯）：中華そば 青葉 中野本店 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%AD%E8%8F%AF%E3%81%9D%E3%81%B0%20%E9%9D%92%E8%91%89%20%E4%B8%AD%E9%87%8E%E6%9C%AC%E5%BA%97/@35.708,139.6668,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">中野站北口步行 3–5 分；10:30–21:00 無休，約 ¥1,000。點「中華そば」（動物系＋魚介雙湯頭），不要點沾麵。備案：中野サンモール一帶現場挑（沒查到可靠的第二間）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
-<li><span class="t">13:30</span><div><div class="it">中野百老匯 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%AD%E9%87%8E%E3%83%96%E3%83%AD%E3%83%BC%E3%83%89%E3%82%A6%E3%82%A7%E3%82%A4/@35.7092407,139.6656853,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">約 12:00 開始營業</div></div></li>
-<li><span class="t">15:00</span><div><div class="it">Harbs 蛋糕下午茶（必吃） <a class="gm" href="https://www.google.com/maps/search/HARBS%20%E3%83%AB%E3%83%9F%E3%83%8D%E3%82%A8%E3%82%B9%E3%83%88%E6%96%B0%E5%AE%BF%E5%BA%97/@35.691281,139.7011149,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">中央線到新宿約 10 分；官網確認：內用 11:00–20:00（最後點餐 19:30）</div></div></li>
-<li><span class="t">16:15</span><div><div class="it">原宿逛衣服：竹下通、貓街、表參道、Laforet <a class="gm" href="https://www.google.com/maps/search/%E7%AB%B9%E4%B8%8B%E9%80%9A%E3%82%8A%20%E5%8E%9F%E5%AE%BF/@35.6711612,139.7049553,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">週日人潮多，竹下通先走</div></div></li>
-<li><span class="t">17:45</span><div><div class="it">歌舞伎町：哥吉拉頭、東急歌舞伎町塔 <a class="gm" href="https://www.google.com/maps/search/%E3%82%B4%E3%82%B8%E3%83%A9%E3%83%98%E3%83%83%E3%83%89%20%E6%96%B0%E5%AE%BF/@35.6950695,139.7018821,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">路過拍照約 10 分，直接走去燒肉店</div></div></li>
-<li><span class="t">18:00</span><div><div class="it">燒肉（必吃）：焼肉屋さかい 新宿歌舞伎町店 <a class="gm" href="https://www.google.com/maps/search/%E7%84%BC%E8%82%89%E5%B1%8B%E3%81%95%E3%81%8B%E3%81%84%20%E6%96%B0%E5%AE%BF%E6%AD%8C%E8%88%9E%E4%BC%8E%E7%94%BA%E5%BA%97/@35.694,139.7025,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">週一 17:00–23:00（最後點餐 22:00），可網路即時訂位；套餐 ¥2,700 起，+¥1,500 加 90 分喝到飽。19:20 前吃完去東京鐵塔。備案：叙々苑 游玄亭 新宿（可預約，每人 ¥15,000 以上）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
-<li><span class="t">19:45</span><div><div class="it">東京鐵塔 Main Deck 夜景 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BF%E3%83%AF%E3%83%BC/@35.6584491,139.745536,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">歌舞伎町吃完燒肉搭都營大江戶線到赤羽橋約 20 分＋步行 5 分。Main Deck 9:00–23:00（最終入場 22:30）大人 ¥1,500；Top Deck 導覽 WEB ¥3,300／窗口 ¥3,500（最終入場 22:15）。官網建議事先在 asoview 買（官網查證）</div></div></li>
-<li><span class="t">20:40</span><div><div class="it">增上寺外拍東京鐵塔夜景 <a class="gm" href="https://www.google.com/maps/search/%E5%A2%97%E4%B8%8A%E5%AF%BA/@35.6572781,139.7483432,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">境內夜間能否進入未查，門外或馬路拍也可以</div></div></li>
-<li><span class="t">21:00</span><div><div class="it">大門／御成門 → 回上野（約 21:30 到飯店）</div><div class="note">早點回去收行李，隔天回國</div></div></li></ul>
-</section>
-<section class="card" style="--day:#e45649">
-  <header><span class="badge">Day 7</span><h2>東京站 → 回程</h2><span class="date">2027-01-19(二)</span></header>
-  <ul><li><span class="t">07:30</span><div><div class="it">早餐：ラ ココリコ 上野本店 <a class="gm" href="https://www.google.com/maps/search/%E3%83%A9%20%E3%82%B3%E3%82%B3%E3%83%AA%E3%82%B3%20%E4%B8%8A%E9%87%8E%E6%9C%AC%E5%BA%97/@35.7132,139.7785,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">7:00–10:30；備案：親父の製麺所（上野站內 7:00 起）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
-<li><span class="t">08:15</span><div><div class="it">退房，寄放行李 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
-<li><span class="t">09:00</span><div><div class="it">伴手禮採買：Gransta 東京、東京站一番街 <a class="gm" href="https://www.google.com/maps/search/%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%B9%E3%82%BF%E6%9D%B1%E4%BA%AC/@35.6814648,139.7669515,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">各店開店時間待確認</div></div></li>
-<li><span class="t">10:00</span><div><div class="it">東京角色街：ONE PIECE 麥稈帽商店、Jump Shop、寶可夢 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%88/@35.6823859,139.7687416,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">營業 10:00–20:30（資料較舊）</div></div></li>
-<li><span class="t">11:00</span><div><div class="it">午餐：Gransta 東京「駅弁屋 祭」買鐵路便當 <a class="gm" href="https://www.google.com/maps/search/%E9%A7%85%E5%BC%81%E5%B1%8B%20%E7%A5%AD%20%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%B9%E3%82%BF%E6%9D%B1%E4%BA%AC/@35.681,139.7668,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">全國各地鐵路便當（一般知識，店內現場挑），帶上 Skyliner 吃，省下坐著吃飯的時間。備案：東京站一番街餐廳</div></div></li>
-<li><span class="t">11:40</span><div><div class="it">回上野之家取行李 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">JR 東京 → 上野約 6 分</div></div></li>
-<li><span class="t">12:20</span><div><div class="it">Skyliner 京成上野 → 成田（約 13:05 到） <a class="gm" href="https://www.google.com/maps/search/%E4%BA%AC%E6%88%90%E4%B8%8A%E9%87%8E%E9%A7%85/@35.7113782,139.7741559,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">先回飯店取行李</div></div></li>
-<li><span class="t">13:15</span><div><div class="it">成田：登機、退稅、免稅店 <a class="gm" href="https://www.google.com/maps/search/%E6%88%90%E7%94%B0%E7%A9%BA%E6%B8%AF%20%E7%AC%AC2%E6%97%85%E5%AE%A2%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB/@35.7731188,140.3864371,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">2026/11/1 起退稅改出境時辦理，帶護照；免稅店在出境審查後</div></div></li>
-<li><span class="t">15:30</span><div><div class="it">CX451 成田 → 桃園（18:35 抵達）</div></div></li></ul>
-</section>
-  <p class="foot">「地圖 ↗」會用店名在 Google Maps 搜尋。營業時間與班次為規劃時查到的資料，出發前請再確認。匯出時間：2026-11-08 13:23</p>
+<body data-tab="days" class="">
+<div class="top" id="top">
+  <div class="top-row"><h1>🧳 202701 日本東京遊</h1><span class="meta">2027-01-13(三) – 2027-01-19(二)　🏨 上野之家</span><a class="switch" href="./">🗺 地圖版</a></div>
+  <nav class="tabs"><button data-tab="days" class="on">📋 每日行程</button><button data-tab="wall">✨ 這趟去哪</button></nav>
 </div>
+<div class="layout">
+  <main class="col col-days">
+    <section class="card" id="day-1" style="--day:#e5735e">
+  <header><span class="badge">Day 1</span><h2>抵達・山城屋＋阿美橫丁</h2><span class="date">2027-01-13(三)</span></header>
+  <ul><li id="it-i-11ce0020-9c6c-4a59-ac66-af1a1848d28f"><span class="t">12:50</span><div><div class="it">CX450 桃園 → 成田</div><div class="note">國泰航空，16:50 抵達</div></div></li>
+<li id="it-i-c1f14389-04aa-40d4-bde5-0a3c226b7ec7"><span class="t">16:50</span><div><div class="it">抵達成田機場 <a class="gm" href="https://www.google.com/maps/search/%E6%88%90%E7%94%B0%E7%A9%BA%E6%B8%AF%20%E7%AC%AC2%E6%97%85%E5%AE%A2%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB/@35.7731188,140.3864371,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">Visit Japan Web QR Code 先填好；入境＋領行李約 60–75 分。國泰在成田一般是第 2 航廈，以登機證為準</div></div></li>
+<li id="it-i-eff5f6d9-2e09-41f9-ad0a-0e0e8da33eb0"><span class="t">18:30</span><div><div class="it">Skyliner → 京成上野（約 45 分） <a class="gm" href="https://www.google.com/maps/search/%E4%BA%AC%E6%88%90%E4%B8%8A%E9%87%8E%E9%A7%85/@35.7113782,139.7741559,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">入境＋領行李約 60–75 分，搭 18:20–18:30 左右的班次比較實際，約 19:15 到京成上野</div></div></li>
+<li id="it-i-fe43725e-9445-4a0c-8607-0027bf9e91aa"><span class="t">19:30</span><div><div class="it">上野之家 Check-in 放行李 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-60b9e56b-81fa-4d43-9d02-b7dfe8219741"><span class="t">19:45</span><div><div class="it">晚餐：もつ焼 大統領 本店（阿美橫丁） <a class="gm" href="https://www.google.com/maps/search/%E3%82%82%E3%81%A4%E7%84%BC%20%E5%A4%A7%E7%B5%B1%E9%A0%98%20%E6%9C%AC%E5%BA%97%20%E4%B8%8A%E9%87%8E/@35.7103983,139.7753321,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">昭和 25 年創業的立飲居酒屋，招牌馬もつ煮込み，約 ¥3,000；10:00–24:00 無休。可否訂位未查證。備案：肉の大山（上野 6-13-2）。晚餐先吃（立飲，吃得快），玩具店放後面，山城屋營業到 21:30 剛好</div></div></li>
+<li id="it-i-3aacf09b-692b-4369-a5ee-c4a4d9dff28c"><span class="t">20:45</span><div><div class="it">上野玩具店：山城屋 <a class="gm" href="https://www.google.com/maps/search/%E3%83%A4%E3%83%9E%E3%82%B7%E3%83%AD%E3%83%A4%20%E4%B8%8A%E9%87%8E/@35.7113306,139.7753313,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">營業到 21:30（你提供的資訊）</div></div></li></ul>
+</section>
+<section class="card" id="day-2" style="--day:#4a90d9">
+  <header><span class="badge">Day 2</span><h2>鎌倉＋江之島＋橫濱中華街</h2><span class="date">2027-01-14(四)</span></header>
+  <ul><li id="it-i-440de4aa-894a-4bf0-ab0e-02fd631a2d63"><span class="t">07:45</span><div><div class="it">早餐：親父の製麺所（上野站改札內） <a class="gm" href="https://www.google.com/maps/search/%E8%A6%AA%E7%88%B6%E3%81%AE%E8%A3%BD%E9%BA%BA%E6%89%80%20%E4%B8%8A%E9%87%8E/@35.7129442,139.7761208,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">平日 7:00 起，站內烏龍麵／蕎麥麵，吃完直接上車。備案：ラ ココリコ 上野本店（上野站淺草口，7:00 起）</div></div></li>
+<li id="it-i-085e7c23-2ccf-4e8b-9704-bf33cb0b6f1a"><span class="t">08:30</span><div><div class="it">上野 → 東京 → 橫須賀線到鎌倉（約 1 小時 15 分） <a class="gm" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%E9%A7%85/@35.319003,139.5506805,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">鎌倉站買江之電一日券（約 ¥800，以現場為準）</div></div></li>
+<li id="it-i-618e46e2-f953-47ab-8f35-754c6c34eb45"><span class="t">10:00</span><div><div class="it">小町通散步 <a class="gm" href="https://www.google.com/maps/search/%E5%B0%8F%E7%94%BA%E9%80%9A%E3%82%8A%20%E9%8E%8C%E5%80%89/@35.3207763,139.5519605,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-ca1b2151-3dad-4ae0-806f-774eb121f298"><span class="t">10:45</span><div><div class="it">鶴岡八幡宮 <a class="gm" href="https://www.google.com/maps/search/%E9%B6%B4%E5%B2%A1%E5%85%AB%E5%B9%A1%E5%AE%AE/@35.3251836,139.5561787,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-97156f51-af49-47e5-a7b9-f32c261910d4"><span class="t">12:00</span><div><div class="it">午餐：鎌倉 峰本 小町通り店 <a class="gm" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%20%E5%B3%B0%E6%9C%AC%20%E5%B0%8F%E7%94%BA%E9%80%9A%E3%82%8A%E5%BA%97/@35.3199739,139.5516525,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">釜揚げしらす丼＋一口蕎麥套餐；11:00–21:30，定休日未查證。1 月沒有生しらす（禁漁），只有釜揚げ。注意：秋本週四公休，別當備案。備案：鎌倉釜飯 かまかま本店（11:00–16:00、週三休，週四有開；只看到搜尋摘要，未逐頁核對）</div></div></li>
+<li id="it-i-ab440a66-c34f-4d49-afad-7421fb803c4a"><span class="t">13:15</span><div><div class="it">高德院（鎌倉大佛） <a class="gm" href="https://www.google.com/maps/search/%E9%AB%98%E5%BE%B3%E9%99%A2%20%E9%8E%8C%E5%80%89%E5%A4%A7%E4%BB%8F/@35.3164986,139.5357293,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">江之電到長谷</div></div></li>
+<li id="it-i-f0f00cef-c128-4afa-abba-1fa0085b8c6e"><span class="t">13:50</span><div><div class="it">長谷寺 <a class="gm" href="https://www.google.com/maps/search/%E9%95%B7%E8%B0%B7%E5%AF%BA%20%E9%8E%8C%E5%80%89/@35.3122687,139.5333092,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-1f60a66c-4829-4bbb-8286-5f882d7358c6"><span class="t">14:45</span><div><div class="it">鎌倉高校前平交道（灌籃高手） <a class="gm" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%E9%AB%98%E6%A0%A1%E5%89%8D%E9%A7%85/@35.3067209,139.5007098,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">拍照約 15 分</div></div></li>
+<li id="it-i-df92856c-caa4-4b32-a6e7-ab907057f23b"><span class="t">15:30</span><div><div class="it">江之島：江島神社 <a class="gm" href="https://www.google.com/maps/search/%E6%B1%9F%E5%B3%B6%E7%A5%9E%E7%A4%BE/@35.3003396,139.4798445,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-0932a66f-1aac-46c4-9946-e7b8e9b7d943"><span class="t">16:30</span><div><div class="it">江之島展望燈塔（Sea Candle）看日落 <a class="gm" href="https://www.google.com/maps/search/%E6%B1%9F%E3%81%AE%E5%B3%B6%E3%82%B7%E3%83%BC%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%89%E3%83%AB/@35.2997557,139.4784787,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">日落約 16:50，晴天看富士山；夜間燈飾場次待確認</div></div></li>
+<li id="it-i-cd23a425-7697-403f-af6d-e508434041b1"><span class="t">17:15</span><div><div class="it">江之電到藤澤 → JR 東海道線到橫濱（約 50 分）</div><div class="note">展望燈塔走到江之島站約 20 分＋江之電約 25 分＋JR 約 25 分＋走到中華街，實際約 90 分；重慶飯店週四最後點餐 20:00，所以日落看完就走</div></div></li>
+<li id="it-i-bf4666c3-f39f-4031-b705-b55cce4218e5"><span class="t">18:45</span><div><div class="it">晚餐：重慶飯店 本館（橫濱中華街） <a class="gm" href="https://www.google.com/maps/search/%E9%87%8D%E6%85%B6%E9%A3%AF%E5%BA%97%20%E6%9C%AC%E9%A4%A8%20%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97/@35.4428,139.6487,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">四川菜老店；週一～四 17:00–21:00（最後點餐 20:00）。一定要先訂位：電話 045-641-8288 或一休。來不及就改山東 2 号店（水餃，11:00–23:00，只收現金）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
+<li id="it-i-d042b4d7-8742-400d-b037-c0a78c79dd30"><span class="t">20:30</span><div><div class="it">回上野（約 40 分）</div></div></li></ul>
+</section>
+<section class="card" id="day-3" style="--day:#c678dd">
+  <header><span class="badge">Day 3</span><h2>日枝神社＋皇居＋銀座＋數碼寶貝台場巡禮＋涮涮鍋＋ROKUSAN ANGEL</h2><span class="date">2027-01-15(五)</span></header>
+  <ul><li id="it-i-c8e0bbd0-42e4-4e31-86fd-78a0a1526354"><span class="t">08:00</span><div><div class="it">早餐：珈琲 王城（上野） <a class="gm" href="https://www.google.com/maps/search/%E7%8F%88%E7%90%B2%20%E7%8E%8B%E5%9F%8E%20%E4%B8%8A%E9%87%8E/@35.7100304,139.7758299,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">8:00–19:00，不定休；昭和喫茶店。備案：喫茶ギャラン（8:00 起，無休）</div></div></li>
+<li id="it-i-003c834c-02e2-40e8-ba16-af0cfbe99dc7"><span class="t">08:45</span><div><div class="it">上野 → 溜池山王（銀座線，約 20–25 分）</div></div></li>
+<li id="it-i-d431d7b1-fc6a-4e11-8241-3464aba42736"><span class="t">09:15</span><div><div class="it">日枝神社 <a class="gm" href="https://www.google.com/maps/search/%E6%97%A5%E6%9E%9D%E7%A5%9E%E7%A4%BE%20%E8%B5%A4%E5%9D%82/@35.674685,139.7398822,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">溜池山王站步行 3–5 分；開門約 6:00–17:00、免費；稻荷參道朱紅鳥居是拍照名所</div></div></li>
+<li id="it-i-7cf7bbdb-4e45-4721-bf57-488ed77cd103"><span class="t">10:45</span><div><div class="it">皇居外苑、二重橋 <a class="gm" href="https://www.google.com/maps/search/%E7%9A%87%E5%B1%85%E5%A4%96%E8%8B%91%20%E4%BA%8C%E9%87%8D%E6%A9%8B/@35.6802215,139.7535986,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">千代田線到二重橋前約 10 分。今天週五：皇居東御苑週一、週五休園，只逛外苑與二重橋</div></div></li>
+<li id="it-i-64f256ce-697a-4f72-a7e1-5823b1f43555"><span class="t">12:15</span><div><div class="it">蛋包飯（必吃）：煉瓦亭 <a class="gm" href="https://www.google.com/maps/search/%E7%85%89%E7%93%A6%E4%BA%AD%20%E9%8A%80%E5%BA%A7/@35.6723,139.7671,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">蛋包飯發源店；11:15–15:00（最後點餐 14:00），週日休、週六有開，不接受訂位。備案：資生堂パーラー銀座本店（可預約 03-5537-6241，週一休）。原備案レストラン早川週六日公休，已換掉（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
+<li id="it-i-d7f62758-a81b-4278-8ed2-5138745db685"><span class="t">13:15</span><div><div class="it">銀座逛衣服 <a class="gm" href="https://www.google.com/maps/search/UNIQLO%20TOKYO%20%E9%8A%80%E5%BA%A7/@35.6737723,139.7651378,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">只有約 45 分，挑 1–2 間就好：UNIQLO 銀座（12 層旗艦）或無印良品銀座旗艦；Ginza Six、松屋銀座留待有空。1 月多半是冬季特賣（一般經驗）</div></div></li>
+<li id="it-i-80ca0936-69c1-4b9f-83ad-2d3a3552b4da"><span class="t">14:00</span><div><div class="it">數碼寶貝巡禮①：銀座 → 新橋 → 海鷗線到東京ビッグサイト站</div><div class="note">走到新橋＋海鷗線，實際約 35–40 分</div></div></li>
+<li id="it-i-ae797613-95f6-4954-a7f3-574d28f446d0"><span class="t">14:40</span><div><div class="it">數碼寶貝巡禮②：東京ビッグサイト（倒金字塔） <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%83%93%E3%83%83%E3%82%B0%E3%82%B5%E3%82%A4%E3%83%88/@35.6297628,139.7939817,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">第 37–38 話，被迷昏的大人被集中關在這裡（劇中寫作「東京ビックファイト」）；站前廣場仰拍外觀</div></div></li>
+<li id="it-i-0a5df419-d2a0-404c-af92-75e6fc93a61f"><span class="t">15:20</span><div><div class="it">數碼寶貝巡禮③：富士電視台球體展望室「はちたま」 <a class="gm" href="https://www.google.com/maps/search/%E3%83%95%E3%82%B8%E3%83%86%E3%83%AC%E3%83%93%20%E7%90%83%E4%BD%93%E5%B1%95%E6%9C%9B%E5%AE%A4%20%E3%81%AF%E3%81%A1%E3%81%9F%E3%81%BE/@35.6271848,139.7751659,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">海鷗線到台場站約 6–8 分。第 36 話霧結界的源頭就是電視台；第 37 話天女獸在這裡進化。10:00–18:00（17:30 停止入場），週一休，¥800</div></div></li>
+<li id="it-i-709c380a-b566-418d-a22a-2c63785085db"><span class="t">16:30</span><div><div class="it">數碼寶貝巡禮④：台場海濱公園＋彩虹大橋日落 <a class="gm" href="https://www.google.com/maps/search/%E3%81%8A%E5%8F%B0%E5%A0%B4%E6%B5%B7%E6%B5%9C%E5%85%AC%E5%9C%92/@35.6299058,139.7788045,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">第 36 話：阿武在彩虹橋被海龍獸攻擊，獨角獸進化成祖頓獸。以彩虹大橋為背景拍日落</div></div></li>
+<li id="it-i-e10be68a-8f52-4d77-a85d-47bb0f293cf0"><span class="t">17:15</span><div><div class="it">DiverCity：獨角獸鋼彈、5F 動漫二手店 <a class="gm" href="https://www.google.com/maps/search/%E3%83%80%E3%82%A4%E3%83%90%E3%83%BC%E3%82%B7%E3%83%86%E3%82%A3%E6%9D%B1%E4%BA%AC%20%E3%83%97%E3%83%A9%E3%82%B6/@35.6250476,139.7755368,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-db610758-c985-4eda-9a79-e4e2dc6def34"><span class="t">17:55</span><div><div class="it">數碼寶貝巡禮⑤：回富士電視台正面，18:06 拍「復活時刻」 <a class="gm" href="https://www.google.com/maps/search/%E3%83%95%E3%82%B8%E3%83%86%E3%83%AC%E3%83%93%E6%9C%AC%E7%A4%BE%E3%83%93%E3%83%AB/@35.6271848,139.7751659,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">第 38 話把野獸數字解成 18:06，魔王吸血魔獸在這一刻復活；從對面廣場仰拍球體夜景</div></div></li>
+<li id="it-i-2e52c15e-d4a2-4505-bdad-0a3ae2c55f4b"><span class="t">18:15</span><div><div class="it">海鷗線回新橋（約 15 分）</div></div></li>
+<li id="it-i-c3a238e5-688d-48b4-a241-a5eae7599707"><span class="t">18:45</span><div><div class="it">晚餐：しゃぶ輝 新橋店（涮涮鍋／壽喜燒） <a class="gm" href="https://www.google.com/maps/search/%E3%81%97%E3%82%83%E3%81%B6%E8%BC%9D%20%E6%96%B0%E6%A9%8B%E5%BA%97/@35.6668,139.7572,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">19:40 前吃完趕 ROKUSAN ANGEL（新橋→六本木約 15 分）。新橋站步行 4 分，完全個室；平日晚餐時間新橋店沒查到（同集團銀座本店平日 17:00–22:30），訂位時確認，電話 03-6206-7202，可網路訂位。這趟的「火鍋」就是這一餐（仙台取消後唯一的火鍋）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）。備案：すきはな 新橋銀座口店（壽喜燒，11:00–23:00 L.O.）</div></div></li>
+<li id="it-i-e9851beb-ea97-4b6e-a77e-912c793d28d8"><span class="t">20:00</span><div><div class="it">ROKUSAN ANGEL（63 ANGEL）20:30 場 <a class="gm" href="https://www.google.com/maps/search/ROKUSAN%20ANGEL%20%E5%85%AD%E6%9C%AC%E6%9C%A8/@35.6638,139.7335,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">六本木 3-8-15 B2F，需預約；百科站與網友遊記都寫每天三場 18:30／20:30／22:40 開演（入場早 30 分），週五有沒有演出、年齡、服裝、票價請預約時確認，預約時在官網 rokusanangel.jp 或電話 03-6447-2037 確認；年齡、服裝、票價未查到（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
+<li id="it-i-58d9d575-e8cc-42b0-b6f6-10321f8b3adf"><span class="t">22:45</span><div><div class="it">日比谷線六本木 → 上野（約 23:15 回飯店）</div><div class="note">隔天 1/16 是輕鬆日，早餐 09:00 才開始</div></div></li></ul>
+</section>
+<section class="card" id="day-4" style="--day:#50a14f">
+  <header><span class="badge">Day 4</span><h2>秋葉原＋神田明神＋湯島天神＋晴空塔（輕鬆日）</h2><span class="date">2027-01-16(六)</span></header>
+  <ul><li id="it-i-976c28ac-701f-4f5d-a83d-1677ef0434d1"><span class="t">09:00</span><div><div class="it">早餐：ラ ココリコ 上野本店 <a class="gm" href="https://www.google.com/maps/search/%E3%83%A9%20%E3%82%B3%E3%82%B3%E3%83%AA%E3%82%B3%20%E4%B8%8A%E9%87%8E%E6%9C%AC%E5%BA%97/@35.7132,139.7785,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野站淺草口步行 1 分，飯店一樓早餐 7:00–10:30 無休；價位未查證（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）。備案：親父の製麺所（上野站改札內，7:00 起）</div></div></li>
+<li id="it-i-afae2e8e-a8c8-435b-a37f-201959da1d24"><span class="t">10:30</span><div><div class="it">秋葉原：Radio Kaikan、Animate、駿河屋、Super Potato <a class="gm" href="https://www.google.com/maps/search/%E7%A7%8B%E8%91%89%E5%8E%9F%E3%83%A9%E3%82%B8%E3%82%AA%E4%BC%9A%E9%A4%A8/@35.6981145,139.7719922,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野搭 JR 一站；多數店 10–11 點才開</div></div></li>
+<li id="it-i-40c41c26-0ce1-419b-b56e-8c3de91b60c8"><span class="t">12:30</span><div><div class="it">天丼（必吃）：天ぷら ひさご 秋葉原店 <a class="gm" href="https://www.google.com/maps/search/%E5%A4%A9%E3%81%B7%E3%82%89%20%E3%81%B2%E3%81%95%E3%81%94%20%E7%A7%8B%E8%91%89%E5%8E%9F%E5%BA%97%20AKIBA_ICHI/@35.7005826,139.7724727,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">AKIBA_ICHI（秋葉原 UDX）3F，電氣街口步行 3 分；午餐 11:00–15:00（各站一致），天丼約 ¥1,500、大海老丼 ¥2,700。公休：一休寫「不定休（依秋葉原 UDX）」，另一站寫無休，週五應有開，想保險可打 03-3252-3051。備案：八ツ手屋（神田，平日 11:00–14:00，可能賣完）</div></div></li>
+<li id="it-i-5a905f8f-c425-4405-9f3d-e94a70c40d1c"><span class="t">13:30</span><div><div class="it">神田明神 <a class="gm" href="https://www.google.com/maps/search/%E7%A5%9E%E7%94%B0%E6%98%8E%E7%A5%9E/@35.7019403,139.7677388,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">秋葉原步行約 7 分；境內 24 小時開放，授與所 9:00–18:00。秋葉原的守護神社，也是《Love Live!》聖地；1 月還在新年參拜季。取代去過的淺草寺</div></div></li>
+<li id="it-i-122e7064-4395-474b-8406-29e967642c17"><span class="t">14:15</span><div><div class="it">湯島天神（湯島天滿宮） <a class="gm" href="https://www.google.com/maps/search/%E6%B9%AF%E5%B3%B6%E5%A4%A9%E6%BA%80%E5%AE%AE/@35.7076902,139.7680519,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">步行約 10 分；6:00–19:30。學業祈福名所，1 月正值考季，繪馬很壯觀</div></div></li>
+<li id="it-i-06aef900-862a-4b81-a977-395e1eacbdf5"><span class="t">15:00</span><div><div class="it">湯島 → 押上（千代田線轉半藏門線，約 20 分）</div></div></li>
+<li id="it-i-e373add0-1acf-4c8c-ac3f-d1a86985f042"><span class="t">15:30</span><div><div class="it">逛晴空街道 Solamachi <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81/@35.7102358,139.8119453,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">4F 有 JUMP、三麗鷗、寶可夢中心</div></div></li>
+<li id="it-i-fc721546-a3ff-406a-b0a8-88e38c19f921"><span class="t">16:30</span><div><div class="it">晴空塔天望甲板（350m）日落＋夜景 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%84%E3%83%AA%E3%83%BC/@35.7100543,139.8107141,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">日落約 16:55。大人 ¥1,800 起、依日期浮動，官網 WEB 或 7ticket 先買；現場 4F 窗口／售票機每張多收 ¥500 發券費。最終入場為閉館前 1 小時；1/16 實際營業時間官網日曆未查到（第三方：10:00–22:00）。今天週六人多、票價依日期浮動，週末通常較貴，建議先買指定時段</div></div></li>
+<li id="it-i-a67d7c73-bf3e-4a6a-8996-a3496472b606"><span class="t">18:30</span><div><div class="it">晚餐：月島もんじゃ だるま ソラマチ店 <a class="gm" href="https://www.google.com/maps/search/%E6%9C%88%E5%B3%B6%E3%82%82%E3%82%93%E3%81%98%E3%82%83%20%E3%81%A0%E3%82%8B%E3%81%BE%20%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81%E5%BA%97/@35.71,139.8113,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">東京名物文字燒；10:30–23:00（最後點餐 21:45），可電話訂位 03-5809-7408（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）。備案：Solamachi 6–7F 其他餐廳現場挑（たまひで いちの 營業狀態資料矛盾，未列入）</div></div></li>
+<li id="it-i-ea196083-b058-4c90-88c8-547df9d6c5ff"><span class="t">19:45</span><div><div class="it">把 Solamachi 逛完 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81/@35.7102358,139.8119453,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">全館約到 21:00（待確認）</div></div></li>
+<li id="it-i-938ef55c-fb86-4b12-ad47-aa1369e9d389"><span class="t">21:00</span><div><div class="it">東武線到淺草 → 銀座線回上野（約 15–20 分）</div><div class="note">隔天富士山 07:45 出門，不用太早睡</div></div></li></ul>
+</section>
+<section class="card" id="day-5" style="--day:#986801">
+  <header><span class="badge">Day 5</span><h2>富士山・河口湖（不早起版）</h2><span class="date">2027-01-17(日)</span></header>
+  <ul><li id="it-i-cf4dcbfc-6a57-4903-8e93-a90a80129a60"><span class="t">07:45</span><div><div class="it">慢慢出門：上野 → 新宿（JR 山手線約 25 分）</div><div class="note">不用早起。出門前看即時影像確認看不看得到富士山：live.fujigoko.tv</div></div></li>
+<li id="it-i-01295089-7ffc-49ff-89d1-2804ee10d70e"><span class="t">08:15</span><div><div class="it">新宿站買早餐（便當／飯糰），帶上車吃 <a class="gm" href="https://www.google.com/maps/search/%E6%96%B0%E5%AE%BF%E9%A7%85/@35.6896,139.7006,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-5cfbbf14-1121-4bfa-ac91-6f5d7e51ff5a"><span class="t">08:30</span><div><div class="it">新宿搭特急「富士回遊 7 號」→ 下吉田（約 1 小時 40 分）</div><div class="note">全車指定席，えきねっと預約；新宿 08:30 → 河口湖 10:26（2026/10 時刻，1/17 週日請再確認），在車上吃早餐、補眠</div></div></li>
+<li id="it-i-26adb45c-7773-4b84-acf4-ae50ddfa7c7b"><span class="t">10:10</span><div><div class="it">下吉田站下車 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8B%E5%90%89%E7%94%B0%E9%A7%85/@35.4977295,138.8035253,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">依河口湖 10:26 到站倒推，約 10:10（未查證）</div></div></li>
+<li id="it-i-2d5ec4ab-4222-4c4e-88b6-64dcb59615a9"><span class="t">10:20</span><div><div class="it">新倉山淺間公園・忠靈塔（五重塔＋富士山） <a class="gm" href="https://www.google.com/maps/search/%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94/@35.5012871,138.8013556,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">下吉田站步行約 20–25 分，398 段階梯可走旁邊的坡道，慢慢走不用趕；穿防滑鞋。冬天晴天中午前都還有機會看到富士山</div></div></li>
+<li id="it-i-9bf62b26-1f60-462a-bdd1-ba5c292fccd0"><span class="t">11:40</span><div><div class="it">富士急線 下吉田 → 河口湖（約 15 分） <a class="gm" href="https://www.google.com/maps/search/%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85/@35.4983534,138.7684924,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-62ca4daa-d162-499c-97d3-02037b04797f"><span class="t">12:15</span><div><div class="it">午餐：甲州ほうとう 小作 河口湖店（餺飥） <a class="gm" href="https://www.google.com/maps/search/%E7%94%B2%E5%B7%9E%E3%81%BB%E3%81%86%E3%81%A8%E3%81%86%20%E5%B0%8F%E4%BD%9C%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E5%BA%97/@35.4957831,138.7568346,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">官網查證：11:00–20:00（L.O. 19:30），定休日なし，2027/1 只有 1/1 休。備案：ほうとう不動 東戀路店（週一有沒有開未查證，0555-72-8511）；距河口湖站約 1.1km（依地圖估，步行約 15 分）</div></div></li>
+<li id="it-i-5800f9a8-2672-4864-a9cc-dadbdc76edc8"><span class="t">13:45</span><div><div class="it">大石公園（湖畔看富士山） <a class="gm" href="https://www.google.com/maps/search/%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92/@35.52329,138.7465374,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">周遊巴士紅線約 20–30 分（未查證，一日券 ¥1,500）。河口湖畔正面看富士山，可在河口湖自然生活館坐著喝東西休息。想多一個點才去富士山全景纜車（來回 ¥1,200，強風停駛），累了就跳過</div></div></li>
+<li id="it-i-01e3149c-2822-43ea-8f38-4021bc082bd1"><span class="t">15:45</span><div><div class="it">回到河口湖站 <a class="gm" href="https://www.google.com/maps/search/%E6%B2%B3%E5%8F%A3%E6%B9%96%E9%A7%85/@35.4983534,138.7684924,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">搭紅線巴士回車站，提早到可在站前買伴手禮</div></div></li>
+<li id="it-i-07e0f586-1250-45d4-9a84-cb0c3c6f913d"><span class="t">16:48</span><div><div class="it">搭富士回遊 44 號 → 新宿 18:48 → 山手線回上野（約 19:20）</div><div class="note">44 號「平日」新宿 18:48 到，1/17 是週日，假日時刻未查證，訂票時確認；晚一點可搭 48 號 17:41 發。週日纜車、忠靈塔人潮較多</div></div></li>
+<li id="it-i-986c9532-f5b6-425e-8415-7e8b8ff8baed"><span class="t">19:30</span><div><div class="it">晚餐：上野 肉の大山（炸肉餅、燒肉定食） <a class="gm" href="https://www.google.com/maps/search/%E8%82%89%E3%81%AE%E5%A4%A7%E5%B1%B1%20%E4%B8%8A%E9%87%8E/@35.7087,139.7748,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野 6-13-2；營業到 22:00 或 23:00（各站不一）。備案：もつ焼 大統領（10:00–24:00 無休）。今晚回上野後若還有體力，可順逛唐吉訶德／多慶屋買零食藥妝（營業時間未查證）</div></div></li></ul>
+</section>
+<section class="card" id="day-6" style="--day:#d19a66">
+  <header><span class="badge">Day 6</span><h2>我的英雄學院 10 週年展＋中野拉麵＋Harbs＋原宿＋歌舞伎町燒肉＋東京鐵塔夜景</h2><span class="date">2027-01-18(一)</span></header>
+  <ul><li id="it-i-365ae8d0-a3c7-47ba-9c38-e42f540a8824"><span class="t">08:30</span><div><div class="it">朝食：老舗喫茶ギャラン <a class="gm" href="https://www.google.com/maps/search/%E5%96%AB%E8%8C%B6%20%E3%82%AE%E3%83%A3%E3%83%A9%E3%83%B3%20%E4%B8%8A%E9%87%8E/@35.7111901,139.775252,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">上野站步行 2–3 分；8:00–22:30 無休，昭和復古喫茶。備案：珈琲 王城（8:00–19:00，不定休）</div></div></li>
+<li id="it-i-3d6da0ea-0776-4f16-b58b-3383fe9df102"><span class="t">09:30</span><div><div class="it">上野 → 東京站八重洲口（JR 約 6 分）</div></div></li>
+<li id="it-i-88421930-04ac-427e-bed4-6ce6f351c1b7"><span class="t">10:00</span><div><div class="it">《我的英雄學院》TV 動畫 10 週年記念展 OUR HERO <a class="gm" href="https://www.google.com/maps/search/TOFROM%20YAESU%20TOWER%20%E6%9D%B1%E4%BA%AC%E5%BB%BA%E7%89%A9%20%E3%81%B4%E3%81%82%20%E3%82%AB%E3%83%B3%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/@35.680858,139.7705856,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">東京建物 ぴあ カンファレンス（TOFROM YAESU TOWER 6F，東京站八重洲口旁）；2027/1/8–2/7 無休，10:00–20:00（最終入場 19:00）。一般 ¥2,500。你已安排好，入場時間以你的票為準（官網查證）</div></div></li>
+<li id="it-i-36f0c123-3e2b-46e2-a769-f6c3a2b1a9d0"><span class="t">12:15</span><div><div class="it">東京站 → 中央線快速直達中野（約 20 分）</div></div></li>
+<li id="it-i-3aeb1064-53d4-4a0b-8cbc-c439374a52c1"><span class="t">12:45</span><div><div class="it">拉麵（必吃，有湯）：中華そば 青葉 中野本店 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%AD%E8%8F%AF%E3%81%9D%E3%81%B0%20%E9%9D%92%E8%91%89%20%E4%B8%AD%E9%87%8E%E6%9C%AC%E5%BA%97/@35.708,139.6668,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">中野站北口步行 3–5 分；10:30–21:00 無休，約 ¥1,000。點「中華そば」（動物系＋魚介雙湯頭），不要點沾麵。備案：中野サンモール一帶現場挑（沒查到可靠的第二間）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
+<li id="it-i-3ac68294-0b7f-4988-82da-97c1fe4b25cb"><span class="t">13:30</span><div><div class="it">中野百老匯 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%AD%E9%87%8E%E3%83%96%E3%83%AD%E3%83%BC%E3%83%89%E3%82%A6%E3%82%A7%E3%82%A4/@35.7092407,139.6656853,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">約 12:00 開始營業</div></div></li>
+<li id="it-i-edbe155d-e38c-44b1-9e4e-488855bb4de2"><span class="t">15:00</span><div><div class="it">Harbs 蛋糕下午茶（必吃） <a class="gm" href="https://www.google.com/maps/search/HARBS%20%E3%83%AB%E3%83%9F%E3%83%8D%E3%82%A8%E3%82%B9%E3%83%88%E6%96%B0%E5%AE%BF%E5%BA%97/@35.691281,139.7011149,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">中央線到新宿約 10 分；官網確認：內用 11:00–20:00（最後點餐 19:30）</div></div></li>
+<li id="it-i-a5e3cde9-7ae3-461d-b16d-4204138702b8"><span class="t">16:15</span><div><div class="it">原宿逛衣服：竹下通、貓街、表參道、Laforet <a class="gm" href="https://www.google.com/maps/search/%E7%AB%B9%E4%B8%8B%E9%80%9A%E3%82%8A%20%E5%8E%9F%E5%AE%BF/@35.6711612,139.7049553,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">週日人潮多，竹下通先走</div></div></li>
+<li id="it-i-9165700a-6be5-4808-b85d-a434860515e6"><span class="t">17:45</span><div><div class="it">歌舞伎町：哥吉拉頭、東急歌舞伎町塔 <a class="gm" href="https://www.google.com/maps/search/%E3%82%B4%E3%82%B8%E3%83%A9%E3%83%98%E3%83%83%E3%83%89%20%E6%96%B0%E5%AE%BF/@35.6950695,139.7018821,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">路過拍照約 10 分，直接走去燒肉店</div></div></li>
+<li id="it-i-89d43c16-ae40-4ba8-a166-f531eef65f77"><span class="t">18:00</span><div><div class="it">燒肉（必吃）：焼肉屋さかい 新宿歌舞伎町店 <a class="gm" href="https://www.google.com/maps/search/%E7%84%BC%E8%82%89%E5%B1%8B%E3%81%95%E3%81%8B%E3%81%84%20%E6%96%B0%E5%AE%BF%E6%AD%8C%E8%88%9E%E4%BC%8E%E7%94%BA%E5%BA%97/@35.694,139.7025,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">週一 17:00–23:00（最後點餐 22:00），可網路即時訂位；套餐 ¥2,700 起，+¥1,500 加 90 分喝到飽。19:20 前吃完去東京鐵塔。備案：叙々苑 游玄亭 新宿（可預約，每人 ¥15,000 以上）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
+<li id="it-i-162df367-4ca7-4df1-8bee-589e70467708"><span class="t">19:45</span><div><div class="it">東京鐵塔 Main Deck 夜景 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BF%E3%83%AF%E3%83%BC/@35.6584491,139.745536,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">歌舞伎町吃完燒肉搭都營大江戶線到赤羽橋約 20 分＋步行 5 分。Main Deck 9:00–23:00（最終入場 22:30）大人 ¥1,500；Top Deck 導覽 WEB ¥3,300／窗口 ¥3,500（最終入場 22:15）。官網建議事先在 asoview 買（官網查證）</div></div></li>
+<li id="it-i-1441d467-c384-4711-8133-043acaa416c6"><span class="t">20:40</span><div><div class="it">增上寺外拍東京鐵塔夜景 <a class="gm" href="https://www.google.com/maps/search/%E5%A2%97%E4%B8%8A%E5%AF%BA/@35.6572781,139.7483432,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">境內夜間能否進入未查，門外或馬路拍也可以</div></div></li>
+<li id="it-i-1ab2837d-bd8a-4acc-8bc9-5a04c3199881"><span class="t">21:00</span><div><div class="it">大門／御成門 → 回上野（約 21:30 到飯店）</div><div class="note">早點回去收行李，隔天回國</div></div></li></ul>
+</section>
+<section class="card" id="day-7" style="--day:#e45649">
+  <header><span class="badge">Day 7</span><h2>東京站 → 回程</h2><span class="date">2027-01-19(二)</span></header>
+  <ul><li id="it-i-4e2334e7-9453-49a4-ac55-3f667f3576c6"><span class="t">07:30</span><div><div class="it">早餐：ラ ココリコ 上野本店 <a class="gm" href="https://www.google.com/maps/search/%E3%83%A9%20%E3%82%B3%E3%82%B3%E3%83%AA%E3%82%B3%20%E4%B8%8A%E9%87%8E%E6%9C%AC%E5%BA%97/@35.7132,139.7785,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">7:00–10:30；備案：親父の製麺所（上野站內 7:00 起）（地圖點為概略位置，點「地圖 ↗」用店名在 Google Maps 找）</div></div></li>
+<li id="it-i-9f79c442-cad8-412d-85e9-7949b6bc3b5f"><span class="t">08:15</span><div><div class="it">退房，寄放行李 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">地圖 ↗</a></div></div></li>
+<li id="it-i-bf986b71-c918-4cfb-8d1a-c9387a809a2b"><span class="t">09:00</span><div><div class="it">伴手禮採買：Gransta 東京、東京站一番街 <a class="gm" href="https://www.google.com/maps/search/%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%B9%E3%82%BF%E6%9D%B1%E4%BA%AC/@35.6814648,139.7669515,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">各店開店時間待確認</div></div></li>
+<li id="it-i-e63f4e7d-919c-4950-a85a-e68020b73af5"><span class="t">10:00</span><div><div class="it">東京角色街：ONE PIECE 麥稈帽商店、Jump Shop、寶可夢 <a class="gm" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%88/@35.6823859,139.7687416,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">營業 10:00–20:30（資料較舊）</div></div></li>
+<li id="it-i-9ff6a439-bd8e-4e0c-b032-e84ecb7d9486"><span class="t">11:00</span><div><div class="it">午餐：Gransta 東京「駅弁屋 祭」買鐵路便當 <a class="gm" href="https://www.google.com/maps/search/%E9%A7%85%E5%BC%81%E5%B1%8B%20%E7%A5%AD%20%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%B9%E3%82%BF%E6%9D%B1%E4%BA%AC/@35.681,139.7668,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">全國各地鐵路便當（一般知識，店內現場挑），帶上 Skyliner 吃，省下坐著吃飯的時間。備案：東京站一番街餐廳</div></div></li>
+<li id="it-i-b28d02f1-3805-477e-9141-82742accf9a8"><span class="t">11:40</span><div><div class="it">回上野之家取行李 <a class="gm" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">JR 東京 → 上野約 6 分</div></div></li>
+<li id="it-i-5cd24f85-1fb9-4177-a4ff-8063fb63c0f6"><span class="t">12:20</span><div><div class="it">Skyliner 京成上野 → 成田（約 13:05 到） <a class="gm" href="https://www.google.com/maps/search/%E4%BA%AC%E6%88%90%E4%B8%8A%E9%87%8E%E9%A7%85/@35.7113782,139.7741559,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">先回飯店取行李</div></div></li>
+<li id="it-i-b9b29ef4-089e-4764-ae94-cc54e1a3bd6b"><span class="t">13:15</span><div><div class="it">成田：登機、退稅、免稅店 <a class="gm" href="https://www.google.com/maps/search/%E6%88%90%E7%94%B0%E7%A9%BA%E6%B8%AF%20%E7%AC%AC2%E6%97%85%E5%AE%A2%E3%82%BF%E3%83%BC%E3%83%9F%E3%83%8A%E3%83%AB/@35.7731188,140.3864371,17z" target="_blank" rel="noopener">地圖 ↗</a></div><div class="note">2026/11/1 起退稅改出境時辦理，帶護照；免稅店在出境審查後</div></div></li>
+<li id="it-i-b4a0b686-19ec-4892-9e1e-486d774f7004"><span class="t">15:30</span><div><div class="it">CX451 成田 → 桃園（18:35 抵達）</div></div></li></ul>
+</section>
+<section class="card" id="day-0" style="--day:#8a919c">
+  <header><span class="badge">待辦</span><h2>出發前待辦</h2><span class="date"></span></header>
+  <ul><li id="it-i-eab24c21-3ab2-4c2d-942b-705b018d2133"><span class="t">☐</span><div><div class="it">《我的英雄學院》10 週年展 OUR HERO 1/18 的票</div><div class="note">你已安排好；確認入場時段與票券（電子或紙本）。一般 ¥2,500</div></div></li>
+<li id="it-i-b0ca81d9-057b-492a-bc48-f41c0b157732"><span class="t">☐</span><div><div class="it">訂位：1/14（四）重慶飯店 本館 18:45</div><div class="note">045-641-8288 或一休；週四最後點餐 20:00</div></div></li>
+<li id="it-i-967ffb39-36b7-42d8-a7cb-07ce4f36955f"><span class="t">☐</span><div><div class="it">訂位：1/15（五）しゃぶ輝 新橋店 18:45</div><div class="note">網路訂位或 03-6206-7202；平日晚餐時間順便確認；告訴店家 19:40 要離開</div></div></li>
+<li id="it-i-085b7e54-6d18-4ed0-9d53-274882f84377"><span class="t">☐</span><div><div class="it">訂位：1/18（一）焼肉屋さかい 新宿歌舞伎町店 18:00</div><div class="note">網路即時訂位；週一 17:00–23:00；19:15 前要吃完</div></div></li>
+<li id="it-i-f4fff21c-4cb4-4ae6-bd30-2649a5df3a62"><span class="t">☐</span><div><div class="it">預約：1/15（五）ROKUSAN ANGEL 20:30 場</div><div class="note">官網 rokusanangel.jp 或 03-6447-2037；確認週五演出、年齡限制、服裝規定、票價</div></div></li>
+<li id="it-i-ce861fb0-c713-4011-90b9-fcd2e88d16c6"><span class="t">☐</span><div><div class="it">買票：1/16（六）晴空塔天望甲板 16:30 時段</div><div class="note">週六人多、票價較高，建議先在官網 WEB 或 7ticket 買（現場買每張多 ¥500 發券費）</div></div></li>
+<li id="it-i-29390c60-86de-4863-98ac-60c11bcb8e4f"><span class="t">☐</span><div><div class="it">買票：1/18（一）東京鐵塔 Main Deck</div><div class="note">asoview 先買（WEB ¥1,500，現場同價），不買也可以</div></div></li>
+<li id="it-i-03038652-690d-401d-a5a8-dd5954670619"><span class="t">☐</span><div><div class="it">交通：1/17（日）特急富士回遊 7 號（新宿 08:30）／44 號（河口湖 16:48）指定席</div><div class="note">えきねっと預約；新宿–河口湖 ¥4,200；回程假日時刻請確認</div></div></li>
+<li id="it-i-ada9c45c-0e73-4f78-8536-09fd462a38c7"><span class="t">☐</span><div><div class="it">交通：Skyliner 來回</div><div class="note">去程約 18:30 班、回程 1/19 12:20 班；確認是否已買來回票</div></div></li>
+<li id="it-i-73f2b396-8091-4dcc-aefe-f0a28676e453"><span class="t">☐</span><div><div class="it">Visit Japan Web 填好入境資料</div><div class="note">成田入境與海關用 QR Code</div></div></li>
+<li id="it-i-80806636-32cf-4fcb-9c63-4971ab4a0e40"><span class="t">☐</span><div><div class="it">住宿：在 app 把 🏨 拖到上野之家的實際位置</div><div class="note">目前暫放上野站；並確認 1/19 退房後可以寄放行李</div></div></li>
+<li id="it-i-2e771981-873d-4173-a3aa-83d52678de58"><span class="t">☐</span><div><div class="it">退稅新制：帶護照、收據收好</div><div class="note">2026/11/1 起改為出境時在機場退稅</div></div></li>
+<li id="it-i-8eb48cc8-7de3-4ea3-a2f0-5330473179f0"><span class="t">☐</span><div><div class="it">出發前一週再查：峰本公休、唐吉訶德上野店位置、富士回遊 1 月假日時刻、河口湖周遊巴士冬季班次、しゃぶ輝平日時間</div><div class="note">這些目前還沒查到官方資料</div></div></li></ul>
+</section>
+    <p class="foot">「地圖 ↗」會用店名在 Google Maps 搜尋。營業時間與班次為規劃時查到的資料，出發前請再確認。匯出時間：2026-11-08 13:32</p>
+  </main>
+  <aside class="col col-wall" id="wall">
+    <div class="wall-head"><h2>✨ 這趟去哪</h2><div class="chips"><button data-cat="all" class="on">全部</button><button data-cat="sight">🗼 景點</button><button data-cat="anime">🎌 動漫・表演</button><button data-cat="shop">🛍 購物</button><button data-cat="food">🍜 美食</button><button data-cat="stay">🏨 住宿</button></div></div>
+    <div class="grid"><article class="hc photo big" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/6/66/Chuurei-tou_Fujiyoshida_17025277650_c59733d6ba_o.jpg/960px-Chuurei-tou_Fujiyoshida_17025277650_c59733d6ba_o.jpg" alt="富士山・忠靈塔" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><span class="ribbon">這趟主角</span><a class="credit" href="https://commons.wikimedia.org/wiki/File:Chuurei-tou_Fujiyoshida_17025277650_c59733d6ba_o.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>富士山・忠靈塔</h3>
+    <p>五重塔配富士山，冬天晴空最清楚</p>
+    <div class="pc-foot"><a class="when" href="#day-5" data-day="5" data-item="i-2d5ec4ab-4222-4c4e-88b6-64dcb59615a9">Day 5 · 1/17(日) 10:20</a><a class="pill" href="https://www.google.com/maps/search/%E6%96%B0%E5%80%89%E5%B1%B1%E6%B5%85%E9%96%93%E5%85%AC%E5%9C%92%20%E5%BF%A0%E9%9C%8A%E5%A1%94/@35.5012871,138.8013556,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo big" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/8/84/Tokyo_Skytree_2014_%E2%85%A2.jpg/960px-Tokyo_Skytree_2014_%E2%85%A2.jpg" alt="東京晴空塔" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Tokyo_Skytree_2014_%E2%85%A2.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>東京晴空塔</h3>
+    <p>天望甲板 350m 看日落與夜景</p>
+    <div class="pc-foot"><a class="when" href="#day-4" data-day="4" data-item="i-fc721546-a3ff-406a-b0a8-88e38c19f921">Day 4 · 1/16(六) 16:30</a><a class="pill" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%B9%E3%82%AB%E3%82%A4%E3%83%84%E3%83%AA%E3%83%BC/@35.7100543,139.8107141,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="anime">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9f/2018_FCG_Headquarters_Building_2.jpg/960px-2018_FCG_Headquarters_Building_2.jpg" alt="數碼寶貝台場巡禮" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><span class="ribbon">動漫聖地</span><a class="credit" href="https://commons.wikimedia.org/wiki/File:2018_FCG_Headquarters_Building_2.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🎌 動漫・表演</div>
+    <h3>數碼寶貝台場巡禮</h3>
+    <p>富士電視台＝第 36–38 話的舞台，18:06 拍「復活時刻」</p>
+    <div class="pc-foot"><a class="when" href="#day-3" data-day="3" data-item="i-0a5df419-d2a0-404c-af92-75e6fc93a61f">Day 3 · 1/15(五) 15:20</a><a class="pill" href="https://www.google.com/maps/search/%E3%83%95%E3%82%B8%E3%83%86%E3%83%AC%E3%83%93%20%E7%90%83%E4%BD%93%E5%B1%95%E6%9C%9B%E5%AE%A4%20%E3%81%AF%E3%81%A1%E3%81%9F%E3%81%BE/@35.6271848,139.7751659,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/04/Enoshima_view_from_Kugenuma_beach.jpg/960px-Enoshima_view_from_Kugenuma_beach.jpg" alt="江之島日落" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Enoshima_view_from_Kugenuma_beach.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>江之島日落</h3>
+    <p>展望燈塔看夕陽，晴天遠眺富士山</p>
+    <div class="pc-foot"><a class="when" href="#day-2" data-day="2" data-item="i-0932a66f-1aac-46c4-9946-e7b8e9b7d943">Day 2 · 1/14(四) 16:30</a><a class="pill" href="https://www.google.com/maps/search/%E6%B1%9F%E3%81%AE%E5%B3%B6%E3%82%B7%E3%83%BC%E3%82%AD%E3%83%A3%E3%83%B3%E3%83%89%E3%83%AB/@35.2997557,139.4784787,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Kamakura_Budda_Daibutsu_front_1885.jpg/960px-Kamakura_Budda_Daibutsu_front_1885.jpg" alt="鎌倉大佛" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Kamakura_Budda_Daibutsu_front_1885.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>鎌倉大佛</h3>
+    <p>高德院的露天大佛</p>
+    <div class="pc-foot"><a class="when" href="#day-2" data-day="2" data-item="i-ab440a66-c34f-4d49-afad-7421fb803c4a">Day 2 · 1/14(四) 13:15</a><a class="pill" href="https://www.google.com/maps/search/%E9%AB%98%E5%BE%B3%E9%99%A2%20%E9%8E%8C%E5%80%89%E5%A4%A7%E4%BB%8F/@35.3164986,139.5357293,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/TsurugaokaHachimangu_by_ulysses_powers_in_Kamakura.jpg/960px-TsurugaokaHachimangu_by_ulysses_powers_in_Kamakura.jpg" alt="鶴岡八幡宮" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:TsurugaokaHachimangu_by_ulysses_powers_in_Kamakura.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>鶴岡八幡宮</h3>
+    <p>鎌倉代表神社，小町通散步過去</p>
+    <div class="pc-foot"><a class="when" href="#day-2" data-day="2" data-item="i-ca1b2151-3dad-4ae0-806f-774eb121f298">Day 2 · 1/14(四) 10:45</a><a class="pill" href="https://www.google.com/maps/search/%E9%B6%B4%E5%B2%A1%E5%85%AB%E5%B9%A1%E5%AE%AE/@35.3251836,139.5561787,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="anime">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Kamakura-Koko-Mae_Station.jpg/960px-Kamakura-Koko-Mae_Station.jpg" alt="鎌倉高校前平交道" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><span class="ribbon">動漫聖地</span><a class="credit" href="https://commons.wikimedia.org/wiki/File:Kamakura-Koko-Mae_Station.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🎌 動漫・表演</div>
+    <h3>鎌倉高校前平交道</h3>
+    <p>《灌籃高手》片頭那個平交道</p>
+    <div class="pc-foot"><a class="when" href="#day-2" data-day="2" data-item="i-1f60a66c-4829-4bbb-8286-5f882d7358c6">Day 2 · 1/14(四) 14:45</a><a class="pill" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%E9%AB%98%E6%A0%A1%E5%89%8D%E9%A7%85/@35.3067209,139.5007098,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo big" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/%E6%97%A5%E6%9C%AC%E9%9B%BB%E6%B3%A2%E5%A1%94%EF%BC%88%E6%9D%B1%E4%BA%AC%E3%82%BF%E3%83%AF%E3%83%BC%EF%BC%89.jpg/960px-%E6%97%A5%E6%9C%AC%E9%9B%BB%E6%B3%A2%E5%A1%94%EF%BC%88%E6%9D%B1%E4%BA%AC%E3%82%BF%E3%83%AF%E3%83%BC%EF%BC%89.jpg" alt="東京鐵塔夜景" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:%E6%97%A5%E6%9C%AC%E9%9B%BB%E6%B3%A2%E5%A1%94%EF%BC%88%E6%9D%B1%E4%BA%AC%E3%82%BF%E3%83%AF%E3%83%BC%EF%BC%89.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>東京鐵塔夜景</h3>
+    <p>Main Deck 150m，最後一晚的夜景</p>
+    <div class="pc-foot"><a class="when" href="#day-6" data-day="6" data-item="i-162df367-4ca7-4df1-8bee-589e70467708">Day 6 · 1/18(一) 19:45</a><a class="pill" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%BF%E3%83%AF%E3%83%BC/@35.6584491,139.745536,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0c/Rainbow-Bridge_%28%E3%83%AC%E3%82%A4%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%96%E3%83%AA%E3%83%83%E3%82%B8%29_-_panoramio.jpg/960px-Rainbow-Bridge_%28%E3%83%AC%E3%82%A4%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%96%E3%83%AA%E3%83%83%E3%82%B8%29_-_panoramio.jpg" alt="彩虹大橋日落" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Rainbow-Bridge_%28%E3%83%AC%E3%82%A4%E3%83%B3%E3%83%9C%E3%83%BC%E3%83%96%E3%83%AA%E3%83%83%E3%82%B8%29_-_panoramio.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>彩虹大橋日落</h3>
+    <p>台場海濱公園，數碼寶貝第 36 話名場面</p>
+    <div class="pc-foot"><a class="when" href="#day-3" data-day="3" data-item="i-709c380a-b566-418d-a22a-2c63785085db">Day 3 · 1/15(五) 16:30</a><a class="pill" href="https://www.google.com/maps/search/%E3%81%8A%E5%8F%B0%E5%A0%B4%E6%B5%B7%E6%B5%9C%E5%85%AC%E5%9C%92/@35.6299058,139.7788045,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5e/Tokyo_Hie-Shrine_Gate.jpg/960px-Tokyo_Hie-Shrine_Gate.jpg" alt="日枝神社" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Tokyo_Hie-Shrine_Gate.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>日枝神社</h3>
+    <p>朱紅鳥居的稻荷參道</p>
+    <div class="pc-foot"><a class="when" href="#day-3" data-day="3" data-item="i-d431d7b1-fc6a-4e11-8241-3464aba42736">Day 3 · 1/15(五) 09:15</a><a class="pill" href="https://www.google.com/maps/search/%E6%97%A5%E6%9E%9D%E7%A5%9E%E7%A4%BE%20%E8%B5%A4%E5%9D%82/@35.674685,139.7398822,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/8/82/Nijuubashi2.jpg/960px-Nijuubashi2.jpg" alt="皇居二重橋" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Nijuubashi2.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>皇居二重橋</h3>
+    <p>東京站旁的皇居外苑</p>
+    <div class="pc-foot"><a class="when" href="#day-3" data-day="3" data-item="i-7cf7bbdb-4e45-4721-bf57-488ed77cd103">Day 3 · 1/15(五) 10:45</a><a class="pill" href="https://www.google.com/maps/search/%E7%9A%87%E5%B1%85%E5%A4%96%E8%8B%91%20%E4%BA%8C%E9%87%8D%E6%A9%8B/@35.6802215,139.7535986,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/Kanda-Myojin_2012.JPG/960px-Kanda-Myojin_2012.JPG" alt="神田明神" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Kanda-Myojin_2012.JPG" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>神田明神</h3>
+    <p>秋葉原守護神社，《Love Live!》聖地</p>
+    <div class="pc-foot"><a class="when" href="#day-4" data-day="4" data-item="i-5a905f8f-c425-4405-9f3d-e94a70c40d1c">Day 4 · 1/16(六) 13:30</a><a class="pill" href="https://www.google.com/maps/search/%E7%A5%9E%E7%94%B0%E6%98%8E%E7%A5%9E/@35.7019403,139.7677388,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/ja/thumb/5/5a/%E6%B9%AF%E5%B3%B6%E5%A4%A9%E6%BA%80%E5%AE%AE_%E6%8B%9D%E6%AE%BF.JPG/960px-%E6%B9%AF%E5%B3%B6%E5%A4%A9%E6%BA%80%E5%AE%AE_%E6%8B%9D%E6%AE%BF.JPG" alt="湯島天神" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://ja.wikipedia.org/wiki/File:%E6%B9%AF%E5%B3%B6%E5%A4%A9%E6%BA%80%E5%AE%AE_%E6%8B%9D%E6%AE%BF.JPG" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>湯島天神</h3>
+    <p>1 月考季，滿滿的學業繪馬</p>
+    <div class="pc-foot"><a class="when" href="#day-4" data-day="4" data-item="i-122e7064-4395-474b-8406-29e967642c17">Day 4 · 1/16(六) 14:15</a><a class="pill" href="https://www.google.com/maps/search/%E6%B9%AF%E5%B3%B6%E5%A4%A9%E6%BA%80%E5%AE%AE/@35.7076902,139.7680519,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/1/18/KawaguchiKo.jpg/960px-KawaguchiKo.jpg" alt="大石公園・河口湖" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:KawaguchiKo.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>大石公園・河口湖</h3>
+    <p>湖畔正面看富士山</p>
+    <div class="pc-foot"><a class="when" href="#day-5" data-day="5" data-item="i-5800f9a8-2672-4864-a9cc-dadbdc76edc8">Day 5 · 1/17(日) 13:45</a><a class="pill" href="https://www.google.com/maps/search/%E5%A4%A7%E7%9F%B3%E5%85%AC%E5%9C%92/@35.52329,138.7465374,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="sight">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97-1.jpg/960px-%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97-1.jpg" alt="橫濱中華街" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97-1.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🗼 景點</div>
+    <h3>橫濱中華街</h3>
+    <p>鎌倉回程的晚餐</p>
+    <div class="pc-foot"><a class="when" href="#day-2" data-day="2" data-item="i-bf4666c3-f39f-4031-b705-b55cce4218e5">Day 2 · 1/14(四) 18:45</a><a class="pill" href="https://www.google.com/maps/search/%E9%87%8D%E6%85%B6%E9%A3%AF%E5%BA%97%20%E6%9C%AC%E9%A4%A8%20%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97/@35.4428,139.6487,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc plain" data-cat="anime">
+  <span class="ribbon">必去</span>
+  <div class="pl-top"><span class="ico">🦸</span><span class="pl-cat">動漫・表演</span></div>
+  <h3>我的英雄學院 10 週年展</h3>
+  <p>OUR HERO・東京站八重洲口旁</p>
+  <div class="pl-foot"><a class="when" href="#day-6" data-day="6" data-item="i-88421930-04ac-427e-bed4-6ce6f351c1b7">Day 6 · 1/18(一) 10:00</a><a class="pill" href="https://www.google.com/maps/search/TOFROM%20YAESU%20TOWER%20%E6%9D%B1%E4%BA%AC%E5%BB%BA%E7%89%A9%20%E3%81%B4%E3%81%82%20%E3%82%AB%E3%83%B3%E3%83%95%E3%82%A1%E3%83%AC%E3%83%B3%E3%82%B9/@35.680858,139.7705856,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc photo" data-cat="anime">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/%E9%9B%BB%E6%B0%97%E8%A1%97%E3%81%AE%E5%A4%9C%E6%98%8E%E3%81%91_-_panoramio.jpg/960px-%E9%9B%BB%E6%B0%97%E8%A1%97%E3%81%AE%E5%A4%9C%E6%98%8E%E3%81%91_-_panoramio.jpg" alt="秋葉原" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:%E9%9B%BB%E6%B0%97%E8%A1%97%E3%81%AE%E5%A4%9C%E6%98%8E%E3%81%91_-_panoramio.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🎌 動漫・表演</div>
+    <h3>秋葉原</h3>
+    <p>Radio Kaikan、Animate、駿河屋</p>
+    <div class="pc-foot"><a class="when" href="#day-4" data-day="4" data-item="i-afae2e8e-a8c8-435b-a37f-201959da1d24">Day 4 · 1/16(六) 10:30</a><a class="pill" href="https://www.google.com/maps/search/%E7%A7%8B%E8%91%89%E5%8E%9F%E3%83%A9%E3%82%B8%E3%82%AA%E4%BC%9A%E9%A4%A8/@35.6981145,139.7719922,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="anime">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/3/35/Nakano_broadway_entrance.JPG/960px-Nakano_broadway_entrance.JPG" alt="中野百老匯" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Nakano_broadway_entrance.JPG" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🎌 動漫・表演</div>
+    <h3>中野百老匯</h3>
+    <p>二手動漫與模型的寶庫</p>
+    <div class="pc-foot"><a class="when" href="#day-6" data-day="6" data-item="i-3ac68294-0b7f-4988-82da-97c1fe4b25cb">Day 6 · 1/18(一) 13:30</a><a class="pill" href="https://www.google.com/maps/search/%E4%B8%AD%E9%87%8E%E3%83%96%E3%83%AD%E3%83%BC%E3%83%89%E3%82%A6%E3%82%A7%E3%82%A4/@35.7092407,139.6656853,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc plain" data-cat="anime">
+  
+  <div class="pl-top"><span class="ico">🏴‍☠️</span><span class="pl-cat">動漫・表演</span></div>
+  <h3>ONE PIECE 麥稈帽商店</h3>
+  <p>東京站角色街</p>
+  <div class="pl-foot"><a class="when" href="#day-7" data-day="7" data-item="i-e63f4e7d-919c-4950-a85a-e68020b73af5">Day 7 · 1/19(二) 10:00</a><a class="pill" href="https://www.google.com/maps/search/%E6%9D%B1%E4%BA%AC%E3%82%AD%E3%83%A3%E3%83%A9%E3%82%AF%E3%82%BF%E3%83%BC%E3%82%B9%E3%83%88%E3%83%AA%E3%83%BC%E3%83%88/@35.6823859,139.7687416,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="anime">
+  
+  <div class="pl-top"><span class="ico">💃</span><span class="pl-cat">動漫・表演</span></div>
+  <h3>ROKUSAN ANGEL</h3>
+  <p>六本木沉浸式表演秀</p>
+  <div class="pl-foot"><a class="when" href="#day-3" data-day="3" data-item="i-e9851beb-ea97-4b6e-a77e-912c793d28d8">Day 3 · 1/15(五) 20:00</a><a class="pill" href="https://www.google.com/maps/search/ROKUSAN%20ANGEL%20%E5%85%AD%E6%9C%AC%E6%9C%A8/@35.6638,139.7335,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="shop">
+  
+  <div class="pl-top"><span class="ico">🧸</span><span class="pl-cat">購物</span></div>
+  <h3>山城屋</h3>
+  <p>上野七層樓玩具店</p>
+  <div class="pl-foot"><a class="when" href="#day-1" data-day="1" data-item="i-3aacf09b-692b-4369-a5ee-c4a4d9dff28c">Day 1 · 1/13(三) 20:45</a><a class="pill" href="https://www.google.com/maps/search/%E3%83%A4%E3%83%9E%E3%82%B7%E3%83%AD%E3%83%A4%20%E4%B8%8A%E9%87%8E/@35.7113306,139.7753313,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc photo" data-cat="shop">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4d/Takeshita_Street_in_December_2018.jpg/960px-Takeshita_Street_in_December_2018.jpg" alt="原宿竹下通" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Takeshita_Street_in_December_2018.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🛍 購物</div>
+    <h3>原宿竹下通</h3>
+    <p>逛衣服：竹下通、貓街、表參道</p>
+    <div class="pc-foot"><a class="when" href="#day-6" data-day="6" data-item="i-a5e3cde9-7ae3-461d-b16d-4204138702b8">Day 6 · 1/18(一) 16:15</a><a class="pill" href="https://www.google.com/maps/search/%E7%AB%B9%E4%B8%8B%E9%80%9A%E3%82%8A%20%E5%8E%9F%E5%AE%BF/@35.6711612,139.7049553,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="shop">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Ginza_area_at_dusk_from_Tokyo_Tower.jpg/960px-Ginza_area_at_dusk_from_Tokyo_Tower.jpg" alt="銀座" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Ginza_area_at_dusk_from_Tokyo_Tower.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🛍 購物</div>
+    <h3>銀座</h3>
+    <p>UNIQLO 銀座、無印良品旗艦</p>
+    <div class="pc-foot"><a class="when" href="#day-3" data-day="3" data-item="i-d7f62758-a81b-4278-8ed2-5138745db685">Day 3 · 1/15(五) 13:15</a><a class="pill" href="https://www.google.com/maps/search/UNIQLO%20TOKYO%20%E9%8A%80%E5%BA%A7/@35.6737723,139.7651378,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc photo" data-cat="shop">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/6/61/Ameya-yokocho01s5s3200.jpg/960px-Ameya-yokocho01s5s3200.jpg" alt="阿美橫丁" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:Ameya-yokocho01s5s3200.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🛍 購物</div>
+    <h3>阿美橫丁</h3>
+    <p>上野的下町商店街</p>
+    <div class="pc-foot"><a class="when" href="#day-1" data-day="1" data-item="i-60b9e56b-81fa-4d43-9d02-b7dfe8219741">Day 1 · 1/13(三) 19:45</a><a class="pill" href="https://www.google.com/maps/search/%E3%82%82%E3%81%A4%E7%84%BC%20%E5%A4%A7%E7%B5%B1%E9%A0%98%20%E6%9C%AC%E5%BA%97%20%E4%B8%8A%E9%87%8E/@35.7103983,139.7753321,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc plain" data-cat="food">
+  <span class="ribbon">必吃</span>
+  <div class="pl-top"><span class="ico">🍤</span><span class="pl-cat">美食</span></div>
+  <h3>天丼</h3>
+  <p>天ぷら ひさご 秋葉原店</p>
+  <div class="pl-foot"><a class="when" href="#day-4" data-day="4" data-item="i-40c41c26-0ce1-419b-b56e-8c3de91b60c8">Day 4 · 1/16(六) 12:30</a><a class="pill" href="https://www.google.com/maps/search/%E5%A4%A9%E3%81%B7%E3%82%89%20%E3%81%B2%E3%81%95%E3%81%94%20%E7%A7%8B%E8%91%89%E5%8E%9F%E5%BA%97%20AKIBA_ICHI/@35.7005826,139.7724727,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  <span class="ribbon">必吃</span>
+  <div class="pl-top"><span class="ico">🍳</span><span class="pl-cat">美食</span></div>
+  <h3>蛋包飯</h3>
+  <p>煉瓦亭（蛋包飯發源店）</p>
+  <div class="pl-foot"><a class="when" href="#day-3" data-day="3" data-item="i-64f256ce-697a-4f72-a7e1-5823b1f43555">Day 3 · 1/15(五) 12:15</a><a class="pill" href="https://www.google.com/maps/search/%E7%85%89%E7%93%A6%E4%BA%AD%20%E9%8A%80%E5%BA%A7/@35.6723,139.7671,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  <span class="ribbon">必吃</span>
+  <div class="pl-top"><span class="ico">🍜</span><span class="pl-cat">美食</span></div>
+  <h3>拉麵</h3>
+  <p>中華そば 青葉 中野本店</p>
+  <div class="pl-foot"><a class="when" href="#day-6" data-day="6" data-item="i-3aeb1064-53d4-4a0b-8cbc-c439374a52c1">Day 6 · 1/18(一) 12:45</a><a class="pill" href="https://www.google.com/maps/search/%E4%B8%AD%E8%8F%AF%E3%81%9D%E3%81%B0%20%E9%9D%92%E8%91%89%20%E4%B8%AD%E9%87%8E%E6%9C%AC%E5%BA%97/@35.708,139.6668,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  <span class="ribbon">必吃</span>
+  <div class="pl-top"><span class="ico">🍲</span><span class="pl-cat">美食</span></div>
+  <h3>火鍋</h3>
+  <p>しゃぶ輝 新橋店（涮涮鍋／壽喜燒）</p>
+  <div class="pl-foot"><a class="when" href="#day-3" data-day="3" data-item="i-c3a238e5-688d-48b4-a241-a5eae7599707">Day 3 · 1/15(五) 18:45</a><a class="pill" href="https://www.google.com/maps/search/%E3%81%97%E3%82%83%E3%81%B6%E8%BC%9D%20%E6%96%B0%E6%A9%8B%E5%BA%97/@35.6668,139.7572,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  <span class="ribbon">必吃</span>
+  <div class="pl-top"><span class="ico">🥩</span><span class="pl-cat">美食</span></div>
+  <h3>燒肉</h3>
+  <p>焼肉屋さかい 新宿歌舞伎町店</p>
+  <div class="pl-foot"><a class="when" href="#day-6" data-day="6" data-item="i-89d43c16-ae40-4ba8-a166-f531eef65f77">Day 6 · 1/18(一) 18:00</a><a class="pill" href="https://www.google.com/maps/search/%E7%84%BC%E8%82%89%E5%B1%8B%E3%81%95%E3%81%8B%E3%81%84%20%E6%96%B0%E5%AE%BF%E6%AD%8C%E8%88%9E%E4%BC%8E%E7%94%BA%E5%BA%97/@35.694,139.7025,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  <span class="ribbon">必吃</span>
+  <div class="pl-top"><span class="ico">🍰</span><span class="pl-cat">美食</span></div>
+  <h3>Harbs 蛋糕</h3>
+  <p>新宿 LUMINE EST 下午茶</p>
+  <div class="pl-foot"><a class="when" href="#day-6" data-day="6" data-item="i-edbe155d-e38c-44b1-9e4e-488855bb4de2">Day 6 · 1/18(一) 15:00</a><a class="pill" href="https://www.google.com/maps/search/HARBS%20%E3%83%AB%E3%83%9F%E3%83%8D%E3%82%A8%E3%82%B9%E3%83%88%E6%96%B0%E5%AE%BF%E5%BA%97/@35.691281,139.7011149,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  
+  <div class="pl-top"><span class="ico">🥟</span><span class="pl-cat">美食</span></div>
+  <h3>四川菜</h3>
+  <p>重慶飯店 本館（橫濱中華街）</p>
+  <div class="pl-foot"><a class="when" href="#day-2" data-day="2" data-item="i-bf4666c3-f39f-4031-b705-b55cce4218e5">Day 2 · 1/14(四) 18:45</a><a class="pill" href="https://www.google.com/maps/search/%E9%87%8D%E6%85%B6%E9%A3%AF%E5%BA%97%20%E6%9C%AC%E9%A4%A8%20%E6%A8%AA%E6%B5%9C%E4%B8%AD%E8%8F%AF%E8%A1%97/@35.4428,139.6487,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  
+  <div class="pl-top"><span class="ico">🥘</span><span class="pl-cat">美食</span></div>
+  <h3>文字燒</h3>
+  <p>月島もんじゃ だるま（晴空塔）</p>
+  <div class="pl-foot"><a class="when" href="#day-4" data-day="4" data-item="i-a67d7c73-bf3e-4a6a-8996-a3496472b606">Day 4 · 1/16(六) 18:30</a><a class="pill" href="https://www.google.com/maps/search/%E6%9C%88%E5%B3%B6%E3%82%82%E3%82%93%E3%81%98%E3%82%83%20%E3%81%A0%E3%82%8B%E3%81%BE%20%E3%82%BD%E3%83%A9%E3%83%9E%E3%83%81%E5%BA%97/@35.71,139.8113,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  
+  <div class="pl-top"><span class="ico">🍲</span><span class="pl-cat">美食</span></div>
+  <h3>餺飥</h3>
+  <p>甲州ほうとう 小作（河口湖）</p>
+  <div class="pl-foot"><a class="when" href="#day-5" data-day="5" data-item="i-62ca4daa-d162-499c-97d3-02037b04797f">Day 5 · 1/17(日) 12:15</a><a class="pill" href="https://www.google.com/maps/search/%E7%94%B2%E5%B7%9E%E3%81%BB%E3%81%86%E3%81%A8%E3%81%86%20%E5%B0%8F%E4%BD%9C%20%E6%B2%B3%E5%8F%A3%E6%B9%96%E5%BA%97/@35.4957831,138.7568346,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  
+  <div class="pl-top"><span class="ico">🐟</span><span class="pl-cat">美食</span></div>
+  <h3>釜揚げしらす丼</h3>
+  <p>鎌倉 峰本 小町通り店</p>
+  <div class="pl-foot"><a class="when" href="#day-2" data-day="2" data-item="i-97156f51-af49-47e5-a7b9-f32c261910d4">Day 2 · 1/14(四) 12:00</a><a class="pill" href="https://www.google.com/maps/search/%E9%8E%8C%E5%80%89%20%E5%B3%B0%E6%9C%AC%20%E5%B0%8F%E7%94%BA%E9%80%9A%E3%82%8A%E5%BA%97/@35.3199739,139.5516525,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  
+  <div class="pl-top"><span class="ico">🍶</span><span class="pl-cat">美食</span></div>
+  <h3>立飲居酒屋</h3>
+  <p>もつ焼 大統領（阿美橫丁）</p>
+  <div class="pl-foot"><a class="when" href="#day-1" data-day="1" data-item="i-60b9e56b-81fa-4d43-9d02-b7dfe8219741">Day 1 · 1/13(三) 19:45</a><a class="pill" href="https://www.google.com/maps/search/%E3%82%82%E3%81%A4%E7%84%BC%20%E5%A4%A7%E7%B5%B1%E9%A0%98%20%E6%9C%AC%E5%BA%97%20%E4%B8%8A%E9%87%8E/@35.7103983,139.7753321,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc plain" data-cat="food">
+  
+  <div class="pl-top"><span class="ico">☕</span><span class="pl-cat">美食</span></div>
+  <h3>昭和喫茶早餐</h3>
+  <p>喫茶ギャラン（上野）</p>
+  <div class="pl-foot"><a class="when" href="#day-6" data-day="6" data-item="i-365ae8d0-a3c7-47ba-9c38-e42f540a8824">Day 6 · 1/18(一) 08:30</a><a class="pill" href="https://www.google.com/maps/search/%E5%96%AB%E8%8C%B6%20%E3%82%AE%E3%83%A3%E3%83%A9%E3%83%B3%20%E4%B8%8A%E9%87%8E/@35.7111901,139.775252,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article>
+<article class="hc photo" data-cat="food">
+  <img src="https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/GRANSTA_TOKYO_-_Square_Zero.jpg/960px-GRANSTA_TOKYO_-_Square_Zero.jpg" alt="鐵路便當" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">
+  <div class="shade"></div><a class="credit" href="https://commons.wikimedia.org/wiki/File:GRANSTA_TOKYO_-_Square_Zero.jpg" target="_blank" rel="noopener" title="照片來源與授權">ⓘ</a>
+  <div class="pc-body">
+    <div class="pc-cat">🍜 美食</div>
+    <h3>鐵路便當</h3>
+    <p>駅弁屋 祭，帶上 Skyliner 吃</p>
+    <div class="pc-foot"><a class="when" href="#day-7" data-day="7" data-item="i-9ff6a439-bd8e-4e0c-b032-e84ecb7d9486">Day 7 · 1/19(二) 11:00</a><a class="pill" href="https://www.google.com/maps/search/%E9%A7%85%E5%BC%81%E5%B1%8B%20%E7%A5%AD%20%E3%82%B0%E3%83%A9%E3%83%B3%E3%82%B9%E3%82%BF%E6%9D%B1%E4%BA%AC/@35.681,139.7668,17z" target="_blank" rel="noopener">地圖 ↗</a></div>
+  </div>
+</article>
+<article class="hc plain" data-cat="stay">
+  
+  <div class="pl-top"><span class="ico">🏨</span><span class="pl-cat">住宿</span></div>
+  <h3>上野之家</h3>
+  <p>六晚都住這裡，上野站步行圈</p>
+  <div class="pl-foot"><span class="when">1/13–1/19 六晚</span><a class="pill" href="https://www.google.com/maps/search/%E4%B8%8A%E9%87%8E%E4%B9%8B%E5%AE%B6/@35.7138,139.7773,17z" target="_blank" rel="noopener">Google 地圖</a></div>
+</article></div>
+    <p class="foot">照片：Wikimedia Commons（點照片右上角 ⓘ 看原圖與授權）。點卡片上的日期會跳到那天的行程。</p>
+  </aside>
+</div>
+<script>
+(function () {
+  var top = document.getElementById('top');
+  function setTopH() { document.documentElement.style.setProperty('--top-h', top.offsetHeight + 'px'); }
+  setTopH(); window.addEventListener('resize', setTopH);
+  var narrow = window.matchMedia('(max-width: 1000px)');
+
+  function setTab(t) {
+    document.body.setAttribute('data-tab', t);
+    document.querySelectorAll('.tabs button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === t); });
+  }
+  document.querySelectorAll('.tabs button').forEach(function (b) {
+    b.addEventListener('click', function () { setTab(b.getAttribute('data-tab')); window.scrollTo(0, 0); });
+  });
+
+  // 類別篩選
+  var chipBtns = document.querySelectorAll('.chips button');
+  chipBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var c = b.getAttribute('data-cat');
+      chipBtns.forEach(function (x) { x.classList.toggle('on', x === b); });
+      document.querySelectorAll('.hc').forEach(function (h) {
+        h.classList.toggle('hide', c !== 'all' && h.getAttribute('data-cat') !== c);
+      });
+    });
+  });
+
+  // 卡片上的日期 → 跳到左邊那一天的那一項（手機上順便切到行程分頁）
+  document.querySelectorAll('.hc .when[data-item]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (narrow.matches) setTab('days');
+      var li = document.getElementById('it-' + a.getAttribute('data-item')) || document.getElementById('day-' + a.getAttribute('data-day'));
+      if (!li) return;
+      li.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      li.classList.remove('flash'); void li.offsetWidth; li.classList.add('flash');
+    });
+  });
+})();
+</script>
 </body>
 </html>
